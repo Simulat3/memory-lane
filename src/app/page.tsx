@@ -151,7 +151,7 @@ export default function Home() {
         setShowStartup(false);
       }}>
         <div className="xp-boot-logo">
-          <Image src="/logo.png" alt="Y2K Logo" width={80} height={80} />
+          <Image src="/logo.png" alt="Y2K Logo" width={150} height={150} />
         </div>
         <div className="xp-boot-bar">
           <div className="xp-boot-progress" />
