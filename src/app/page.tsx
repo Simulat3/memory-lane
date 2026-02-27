@@ -178,7 +178,7 @@ export default function Home() {
           <button className="add-btn" onClick={() => setAddModal(true)}>+ Add a Memory</button>
         </div>
 
-        <footer>Made with love &amp; nostalgia</footer>
+        <footer>Revive Culture</footer>
       </div>
 
       {/* View Modal */}
