@@ -130,7 +130,7 @@ export default function Home() {
           <Image src="/logo.png" alt="Y2K Logo" width={40} height={40} />
           <div className="header-text">
             <h1>Nostalgia Calendar</h1>
-            <p>Brought to you by Y2K where nostalgia fuels the future</p>
+            <p>Nostalgia Fuels the Future</p>
           </div>
         </header>
 
