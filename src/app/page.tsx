@@ -56,7 +56,7 @@ export default function Home() {
     };
     document.addEventListener("click", playSound);
 
-    const timer = setTimeout(() => setShowStartup(false), 3000);
+    const timer = setTimeout(() => setShowStartup(false), 4500);
     return () => {
       clearTimeout(timer);
       document.removeEventListener("click", playSound);
@@ -152,8 +152,6 @@ export default function Home() {
       }}>
         <div className="xp-boot-logo">
           <Image src="/logo.png" alt="Y2K Logo" width={80} height={80} />
-          <h1>Nostalgia Calendar</h1>
-          <p>Nostalgia Fuels the Future</p>
         </div>
         <div className="xp-boot-bar">
           <div className="xp-boot-progress" />
