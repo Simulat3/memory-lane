@@ -1,5 +1,77 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* XP Boot Screen */
+.xp-boot {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #000;
+    cursor: pointer;
+    gap: 30px;
+}
+
+.xp-boot-logo {
+    text-align: center;
+}
+
+.xp-boot-logo img {
+    margin-bottom: 15px;
+}
+
+.xp-boot-logo h1 {
+    font-family: 'Trebuchet MS', Tahoma, sans-serif;
+    font-size: 2rem;
+    color: #fff;
+    margin-top: 15px;
+    letter-spacing: 2px;
+}
+
+.xp-boot-logo p {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 6px;
+}
+
+.xp-boot-bar {
+    width: 250px;
+    height: 20px;
+    background: #1a1a2e;
+    border: 2px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.xp-boot-progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #0054e3, #0997ff, #0054e3);
+    border-radius: 8px;
+    animation: xpLoad 2.5s ease-in-out forwards;
+}
+
+@keyframes xpLoad {
+    0% { width: 0%; }
+    30% { width: 35%; }
+    60% { width: 70%; }
+    90% { width: 90%; }
+    100% { width: 100%; }
+}
+
+.xp-boot-click {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
 .xp-desktop {
     background-color: #3a6ea5;
     font-family: 'Tahoma', 'Segoe UI', sans-serif;

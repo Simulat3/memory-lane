@@ -39,9 +39,28 @@ export default function Home() {
   const [formEmoji, setFormEmoji] = useState("");
   const [pendingImage, setPendingImage] = useState("");
 
+  const [showStartup, setShowStartup] = useState(true);
+
   useEffect(() => {
     const saved = localStorage.getItem("nostalgiaMemories");
     setMemories(saved ? JSON.parse(saved) : getSampleMemories());
+  }, []);
+
+  // Play XP startup sound and show boot screen
+  useEffect(() => {
+    const playSound = () => {
+      const audio = new Audio("/xp-startup.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+      document.removeEventListener("click", playSound);
+    };
+    document.addEventListener("click", playSound);
+
+    const timer = setTimeout(() => setShowStartup(false), 3000);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("click", playSound);
+    };
   }, []);
 
   useEffect(() => {
@@ -122,6 +141,27 @@ export default function Home() {
   const firstDay = new Date(currentYear, currentMonth, 1).getDay();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const today = new Date();
+
+  if (showStartup) {
+    return (
+      <div className="xp-boot" onClick={() => {
+        const audio = new Audio("/xp-startup.mp3");
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+        setShowStartup(false);
+      }}>
+        <div className="xp-boot-logo">
+          <Image src="/logo.png" alt="Y2K Logo" width={80} height={80} />
+          <h1>Nostalgia Calendar</h1>
+          <p>Nostalgia Fuels the Future</p>
+        </div>
+        <div className="xp-boot-bar">
+          <div className="xp-boot-progress" />
+        </div>
+        <div className="xp-boot-click">Click anywhere to start</div>
+      </div>
+    );
+  }
 
   return (
     <div className="xp-desktop">
