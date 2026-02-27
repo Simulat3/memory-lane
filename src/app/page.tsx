@@ -46,22 +46,11 @@ export default function Home() {
     setMemories(saved ? JSON.parse(saved) : getSampleMemories());
   }, []);
 
-  // Play XP startup sound and show boot screen
-  useEffect(() => {
-    const playSound = () => {
-      const audio = new Audio("/xp-startup.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(() => {});
-      document.removeEventListener("click", playSound);
-    };
-    document.addEventListener("click", playSound);
-
-    const timer = setTimeout(() => setShowStartup(false), 4500);
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener("click", playSound);
-    };
-  }, []);
+  function playStartupSound() {
+    const audio = new Audio("/xp-startup.mp3");
+    audio.volume = 0.5;
+    audio.play().catch(() => {});
+  }
 
   useEffect(() => {
     if (memories.length > 0) {
@@ -145,9 +134,7 @@ export default function Home() {
   if (showStartup) {
     return (
       <div className="xp-boot" onClick={() => {
-        const audio = new Audio("/xp-startup.mp3");
-        audio.volume = 0.5;
-        audio.play().catch(() => {});
+        playStartupSound();
         setShowStartup(false);
       }}>
         <div className="xp-boot-logo">
