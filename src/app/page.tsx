@@ -3,6 +3,17 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
+type Category = "key-event" | "memory" | "birthday" | "music" | "movie-tv" | "gaming";
+
+const CATEGORIES: { value: Category; label: string; color: string }[] = [
+  { value: "key-event", label: "Key Event", color: "#cc0000" },
+  { value: "memory", label: "Memory", color: "#0054e3" },
+  { value: "birthday", label: "Birthday", color: "#e6a800" },
+  { value: "music", label: "Music", color: "#8b00cc" },
+  { value: "movie-tv", label: "Movie / TV", color: "#00994d" },
+  { value: "gaming", label: "Gaming", color: "#e65c00" },
+];
+
 interface Memory {
   id: number;
   title: string;
@@ -10,6 +21,7 @@ interface Memory {
   date: string;
   image: string;
   url: string;
+  category: Category;
 }
 
 const MONTH_NAMES = [
@@ -19,8 +31,8 @@ const MONTH_NAMES = [
 
 function getSampleMemories(): Memory[] {
   return [
-    { id: 1, title: "First day of school", description: "Nervous but excited — a brand new backpack and everything.", date: "1999-09-05", image: "", url: "" },
-    { id: 2, title: "Summer road trip", description: "Windows down, favourite songs on repeat.", date: "2004-07-14", image: "", url: "" },
+    { id: 1, title: "First day of school", description: "Nervous but excited — a brand new backpack and everything.", date: "1999-09-05", image: "", url: "", category: "memory" },
+    { id: 2, title: "Summer road trip", description: "Windows down, favourite songs on repeat.", date: "2004-07-14", image: "", url: "", category: "memory" },
   ];
 }
 
@@ -34,6 +46,7 @@ export default function Home() {
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formUrl, setFormUrl] = useState("");
+  const [formCategory, setFormCategory] = useState<Category>("memory");
   const [pendingImage, setPendingImage] = useState("");
 
   const [showStartup, setShowStartup] = useState(true);
@@ -85,6 +98,7 @@ export default function Home() {
     setFormDesc("");
     setFormDate("");
     setFormUrl("");
+    setFormCategory("memory");
     setPendingImage("");
   }
 
@@ -100,6 +114,7 @@ export default function Home() {
       date: formDate,
       image: pendingImage,
       url: formUrl.trim(),
+      category: formCategory,
     };
     setMemories([...memories, newMem]);
     closeAddModal();
@@ -185,7 +200,7 @@ export default function Home() {
                     <div className="day-number">{d}</div>
                     {hasMemory && (
                       <>
-                        <div className="memory-dot" />
+                        <div className="memory-dot" style={{ backgroundColor: CATEGORIES.find(c => c.value === dayMemories[0].category)?.color || "#5cb85c" }} />
                         <div className="memory-preview">{dayMemories[0].title}</div>
                       </>
                     )}
@@ -209,6 +224,9 @@ export default function Home() {
             {viewModal.memories.map((mem) => (
               <div key={mem.id} className="memory-entry">
                 <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>
+                <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
+                  {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
+                </span>
                 <h4>{mem.title}</h4>
                 <div className="memory-year">Date: {mem.date}</div>
                 {mem.description && <p>{mem.description}</p>}
@@ -226,6 +244,22 @@ export default function Home() {
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) closeAddModal(); }}>
           <div className="modal">
             <h3>Add a Memory</h3>
+            <div className="form-group">
+              <label>Category *</label>
+              <div className="category-selector">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    className={`category-option${formCategory === cat.value ? " selected" : ""}`}
+                    style={{ borderColor: cat.color, ...(formCategory === cat.value ? { backgroundColor: cat.color, color: "#fff" } : {}) }}
+                    onClick={() => setFormCategory(cat.value)}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="form-group">
               <label>Title *</label>
               <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder="e.g. First day of school" />
