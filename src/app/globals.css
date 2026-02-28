@@ -337,6 +337,19 @@ header p {
 
 .memory-entry .delete-btn:hover { background: #cc0000; color: #fff; }
 
+.memory-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    color: #0054e3;
+    text-decoration: underline;
+}
+
+.memory-link:hover {
+    color: #003c74;
+}
+
 .memory-entry img {
     max-width: 100%;
     max-height: 200px;

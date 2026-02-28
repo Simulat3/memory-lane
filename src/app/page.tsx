@@ -8,9 +8,8 @@ interface Memory {
   title: string;
   description: string;
   date: string;
-  year: string;
-  emoji: string;
   image: string;
+  url: string;
 }
 
 const MONTH_NAMES = [
@@ -19,10 +18,9 @@ const MONTH_NAMES = [
 ];
 
 function getSampleMemories(): Memory[] {
-  const y = new Date().getFullYear();
   return [
-    { id: 1, title: "First day of school", description: "Nervous but excited — a brand new backpack and everything.", date: `${y}-09-05`, year: "1999", emoji: "🎒", image: "" },
-    { id: 2, title: "Summer road trip", description: "Windows down, favourite songs on repeat.", date: `${y}-07-14`, year: "2004", emoji: "🚗", image: "" },
+    { id: 1, title: "First day of school", description: "Nervous but excited — a brand new backpack and everything.", date: "1999-09-05", image: "", url: "" },
+    { id: 2, title: "Summer road trip", description: "Windows down, favourite songs on repeat.", date: "2004-07-14", image: "", url: "" },
   ];
 }
 
@@ -35,8 +33,7 @@ export default function Home() {
   const [formDate, setFormDate] = useState("");
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
-  const [formYear, setFormYear] = useState("");
-  const [formEmoji, setFormEmoji] = useState("");
+  const [formUrl, setFormUrl] = useState("");
   const [pendingImage, setPendingImage] = useState("");
 
   const [showStartup, setShowStartup] = useState(true);
@@ -87,8 +84,7 @@ export default function Home() {
     setFormTitle("");
     setFormDesc("");
     setFormDate("");
-    setFormYear("");
-    setFormEmoji("");
+    setFormUrl("");
     setPendingImage("");
   }
 
@@ -102,9 +98,8 @@ export default function Home() {
       title: formTitle.trim(),
       description: formDesc.trim(),
       date: formDate,
-      year: formYear.trim(),
-      emoji: formEmoji.trim(),
       image: pendingImage,
+      url: formUrl.trim(),
     };
     setMemories([...memories, newMem]);
     closeAddModal();
@@ -191,7 +186,7 @@ export default function Home() {
                     {hasMemory && (
                       <>
                         <div className="memory-dot" />
-                        <div className="memory-preview">{dayMemories[0].emoji || "📖"} {dayMemories[0].title}</div>
+                        <div className="memory-preview">{dayMemories[0].title}</div>
                       </>
                     )}
                   </div>
@@ -214,10 +209,11 @@ export default function Home() {
             {viewModal.memories.map((mem) => (
               <div key={mem.id} className="memory-entry">
                 <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>
-                <h4>{mem.emoji || "📖"} {mem.title}</h4>
-                <div className="memory-year">Date: {mem.date}{mem.year ? ` | Year: ${mem.year}` : ""}</div>
+                <h4>{mem.title}</h4>
+                <div className="memory-year">Date: {mem.date}</div>
                 {mem.description && <p>{mem.description}</p>}
                 {mem.image && <img src={mem.image} alt={mem.title} />}
+                {mem.url && <a href={mem.url} target="_blank" rel="noopener noreferrer" className="memory-link">View more info</a>}
               </div>
             ))}
             <button className="modal-close" onClick={() => setViewModal(null)}>Close</button>
@@ -243,10 +239,6 @@ export default function Home() {
               <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>Year it happened (if different)</label>
-              <input type="number" value={formYear} onChange={(e) => setFormYear(e.target.value)} placeholder="e.g. 1995" min={1900} max={2100} />
-            </div>
-            <div className="form-group">
               <label>Image (optional)</label>
               <div className="image-upload-area" onClick={() => document.getElementById("memImage")?.click()}>
                 {pendingImage ? "Image selected — click to change" : "Click to upload an image"}
@@ -255,8 +247,8 @@ export default function Home() {
               </div>
             </div>
             <div className="form-group">
-              <label>Emoji (optional)</label>
-              <input type="text" value={formEmoji} onChange={(e) => setFormEmoji(e.target.value)} placeholder="e.g. 🎂 🎬 🎵" maxLength={4} />
+              <label>Link (optional)</label>
+              <input type="url" value={formUrl} onChange={(e) => setFormUrl(e.target.value)} placeholder="e.g. https://en.wikipedia.org/wiki/..." />
             </div>
             <div className="form-actions">
               <button className="btn-save" onClick={saveMemory}>Save Memory</button>
