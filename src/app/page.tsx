@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { CULTURAL_MOMENTS } from "../data/cultural-moments";
 
 type Category = "key-event" | "memory" | "birthday" | "music" | "movie-tv" | "gaming";
 
@@ -22,6 +23,7 @@ interface Memory {
   image: string;
   url: string;
   category: Category;
+  preset?: boolean;
 }
 
 const MONTH_NAMES = [
@@ -77,11 +79,13 @@ export default function Home() {
     }
   }, [memories]);
 
+  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...memories];
+
   function getMemoriesForDate(year: number, month: number, day: number): Memory[] {
     const y = String(year);
     const m = String(month + 1).padStart(2, "0");
     const d = String(day).padStart(2, "0");
-    return memories.filter((mem) => {
+    return allMemories.filter((mem) => {
       const [yy, mm, dd] = mem.date.split("-");
       return yy === y && mm === m && dd === d;
     });
@@ -260,7 +264,7 @@ export default function Home() {
             <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day}</h3>
             {viewModal.memories.map((mem) => (
               <div key={mem.id} className="memory-entry">
-                <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>
+                {!mem.preset && <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>}
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
                   {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
                 </span>
