@@ -65,6 +65,12 @@ export default function Home() {
     audio.play().catch(() => {});
   }
 
+  function playClickSound() {
+    const audio = new Audio("/xp-ding.mp3");
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+  }
+
   useEffect(() => {
     if (memories.length > 0) {
       localStorage.setItem("nostalgiaMemories", JSON.stringify(memories));
@@ -175,7 +181,7 @@ export default function Home() {
 
         <div className="window-body">
           <div className="calendar-nav">
-            <button onClick={() => changeMonth(-1)}>&#8592; Prev</button>
+            <button onClick={() => { playClickSound(); changeMonth(-1); }}>&#8592; Prev</button>
             <div className="date-picker-wrapper">
               <h2 onClick={() => { setPickerMonth(currentMonth); setPickerYear(currentYear); setShowDatePicker(!showDatePicker); }} className="date-picker-toggle">
                 {MONTH_NAMES[currentMonth]} {currentYear} &#9662;
@@ -200,11 +206,11 @@ export default function Home() {
                       max={2100}
                     />
                   </div>
-                  <button className="date-picker-go" onClick={() => { setCurrentMonth(pickerMonth); setCurrentYear(pickerYear); setShowDatePicker(false); }}>Go</button>
+                  <button className="date-picker-go" onClick={() => { playClickSound(); setCurrentMonth(pickerMonth); setCurrentYear(pickerYear); setShowDatePicker(false); }}>Go</button>
                 </div>
               )}
             </div>
-            <button onClick={() => changeMonth(1)}>Next &#8594;</button>
+            <button onClick={() => { playClickSound(); changeMonth(1); }}>Next &#8594;</button>
           </div>
 
           <div className="calendar-grid">
