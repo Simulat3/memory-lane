@@ -49,6 +49,8 @@ export default function Home() {
   const [formCategory, setFormCategory] = useState<Category>("memory");
   const [pendingImage, setPendingImage] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickerMonth, setPickerMonth] = useState(0);
+  const [pickerYear, setPickerYear] = useState(2000);
 
   const [showStartup, setShowStartup] = useState(true);
 
@@ -175,14 +177,14 @@ export default function Home() {
           <div className="calendar-nav">
             <button onClick={() => changeMonth(-1)}>&#8592; Prev</button>
             <div className="date-picker-wrapper">
-              <h2 onClick={() => setShowDatePicker(!showDatePicker)} className="date-picker-toggle">
+              <h2 onClick={() => { setPickerMonth(currentMonth); setPickerYear(currentYear); setShowDatePicker(!showDatePicker); }} className="date-picker-toggle">
                 {MONTH_NAMES[currentMonth]} {currentYear} &#9662;
               </h2>
               {showDatePicker && (
                 <div className="date-picker-dropdown">
                   <div className="date-picker-section">
                     <label>Month</label>
-                    <select value={currentMonth} onChange={(e) => { setCurrentMonth(Number(e.target.value)); }}>
+                    <select value={pickerMonth} onChange={(e) => setPickerMonth(Number(e.target.value))}>
                       {MONTH_NAMES.map((name, i) => (
                         <option key={i} value={i}>{name}</option>
                       ))}
@@ -192,13 +194,13 @@ export default function Home() {
                     <label>Year</label>
                     <input
                       type="number"
-                      value={currentYear}
-                      onChange={(e) => setCurrentYear(Number(e.target.value))}
+                      value={pickerYear}
+                      onChange={(e) => setPickerYear(Number(e.target.value))}
                       min={1900}
                       max={2100}
                     />
                   </div>
-                  <button className="date-picker-go" onClick={() => setShowDatePicker(false)}>Go</button>
+                  <button className="date-picker-go" onClick={() => { setCurrentMonth(pickerMonth); setCurrentYear(pickerYear); setShowDatePicker(false); }}>Go</button>
                 </div>
               )}
             </div>
