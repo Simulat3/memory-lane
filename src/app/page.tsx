@@ -68,12 +68,13 @@ export default function Home() {
     }
   }, [memories]);
 
-  function getMemoriesForDate(month: number, day: number): Memory[] {
+  function getMemoriesForDate(year: number, month: number, day: number): Memory[] {
+    const y = String(year);
     const m = String(month + 1).padStart(2, "0");
     const d = String(day).padStart(2, "0");
     return memories.filter((mem) => {
-      const [, mm, dd] = mem.date.split("-");
-      return mm === m && dd === d;
+      const [yy, mm, dd] = mem.date.split("-");
+      return yy === y && mm === m && dd === d;
     });
   }
 
@@ -188,7 +189,7 @@ export default function Home() {
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const d = i + 1;
                 const isToday = today.getDate() === d && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
-                const dayMemories = getMemoriesForDate(currentMonth, d);
+                const dayMemories = getMemoriesForDate(currentYear, currentMonth, d);
                 const hasMemory = dayMemories.length > 0;
 
                 return (
