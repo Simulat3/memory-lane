@@ -166,6 +166,80 @@ header p {
     color: #003c74;
 }
 
+.date-picker-wrapper {
+    position: relative;
+}
+
+.date-picker-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+
+.date-picker-toggle:hover {
+    color: #0054e3;
+}
+
+.date-picker-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ece9d8;
+    border: 2px solid #0054e3;
+    border-radius: 0 0 4px 4px;
+    padding: 12px;
+    z-index: 50;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+    white-space: nowrap;
+}
+
+.date-picker-section {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.date-picker-section label {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #003c74;
+}
+
+.date-picker-section select,
+.date-picker-section input {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    padding: 3px 6px;
+    border: 2px inset #aca899;
+    background: #fff;
+    color: #000;
+}
+
+.date-picker-section input[type="number"] {
+    width: 70px;
+}
+
+.date-picker-go {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 4px 12px;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 45%, #d6cfc3 100%);
+    border: 1px solid #003c74;
+    color: #003c74;
+    cursor: pointer;
+    border-radius: 3px;
+    box-shadow: 1px 1px 0 #fff inset, -1px -1px 0 #aca899 inset;
+}
+
+.date-picker-go:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
+}
+
 .calendar-grid {
     background: #fff;
     border: 2px inset #aca899;

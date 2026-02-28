@@ -48,6 +48,7 @@ export default function Home() {
   const [formUrl, setFormUrl] = useState("");
   const [formCategory, setFormCategory] = useState<Category>("memory");
   const [pendingImage, setPendingImage] = useState("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const [showStartup, setShowStartup] = useState(true);
 
@@ -173,7 +174,34 @@ export default function Home() {
         <div className="window-body">
           <div className="calendar-nav">
             <button onClick={() => changeMonth(-1)}>&#8592; Prev</button>
-            <h2>{MONTH_NAMES[currentMonth]} {currentYear}</h2>
+            <div className="date-picker-wrapper">
+              <h2 onClick={() => setShowDatePicker(!showDatePicker)} className="date-picker-toggle">
+                {MONTH_NAMES[currentMonth]} {currentYear} &#9662;
+              </h2>
+              {showDatePicker && (
+                <div className="date-picker-dropdown">
+                  <div className="date-picker-section">
+                    <label>Month</label>
+                    <select value={currentMonth} onChange={(e) => { setCurrentMonth(Number(e.target.value)); }}>
+                      {MONTH_NAMES.map((name, i) => (
+                        <option key={i} value={i}>{name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="date-picker-section">
+                    <label>Year</label>
+                    <input
+                      type="number"
+                      value={currentYear}
+                      onChange={(e) => setCurrentYear(Number(e.target.value))}
+                      min={1900}
+                      max={2100}
+                    />
+                  </div>
+                  <button className="date-picker-go" onClick={() => setShowDatePicker(false)}>Go</button>
+                </div>
+              )}
+            </div>
             <button onClick={() => changeMonth(1)}>Next &#8594;</button>
           </div>
 
