@@ -488,6 +488,89 @@ header p {
     background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
 }
 
+/* Admin edit/delete in view modal */
+.admin-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.admin-edit-btn,
+.admin-delete-btn {
+    font-family: "Tahoma", sans-serif;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border: 1px solid #808080;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+}
+
+.admin-edit-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
+}
+
+.admin-delete-btn {
+    color: #cc0000;
+    border-color: #cc0000;
+}
+
+.admin-delete-btn:hover {
+    background: #cc0000;
+    color: #fff;
+}
+
+.admin-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.admin-edit-form label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.admin-edit-form input,
+.admin-edit-form textarea,
+.admin-edit-form select {
+    font-family: "Tahoma", sans-serif;
+    font-size: 0.8rem;
+    padding: 3px 6px;
+    border: 1px solid #7f9db9;
+    background: #fff;
+}
+
+.admin-edit-form textarea {
+    min-height: 60px;
+    resize: vertical;
+}
+
+.admin-edit-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.admin-save-btn,
+.admin-cancel-btn {
+    font-family: "Tahoma", sans-serif;
+    font-size: 0.7rem;
+    padding: 3px 12px;
+    border: 1px solid #808080;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+}
+
+.admin-save-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
+}
+
+.admin-cancel-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
+}
+
 .form-group {
     margin: 0 15px 10px;
 }

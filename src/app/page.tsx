@@ -5,6 +5,8 @@ import Image from "next/image";
 import { CULTURAL_MOMENTS } from "../data/cultural-moments";
 import AuthButton from "../components/AuthButton";
 import SubmitEventModal from "../components/SubmitEventModal";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase/client";
 import type { Category, Memory, Submission } from "../lib/types";
 
 const CATEGORIES: { value: Category; label: string; color: string }[] = [
@@ -22,6 +24,7 @@ const MONTH_NAMES = [
 ];
 
 export default function Home() {
+  const { isAdmin } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(0);
   const [currentYear, setCurrentYear] = useState(2000);
   const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
@@ -31,6 +34,8 @@ export default function Home() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerMonth, setPickerMonth] = useState(0);
   const [pickerYear, setPickerYear] = useState(2000);
+  const [editingMemoryId, setEditingMemoryId] = useState<string | number | null>(null);
+  const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
   const [showStartup, setShowStartup] = useState(true);
 
@@ -71,6 +76,45 @@ export default function Home() {
     const audio = new Audio("/xp-ding.mp3");
     audio.volume = 0.3;
     audio.play().catch(() => {});
+  }
+
+  async function handleAdminSave(memoryId: string | number) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/admin/submissions/${memoryId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        title: editFields.title,
+        description: editFields.description,
+        date: editFields.date,
+        category: editFields.category,
+        url: editFields.url,
+        image_url: editFields.image_url,
+      }),
+    });
+    if (res.ok) {
+      setEditingMemoryId(null);
+      await fetchApprovedSubmissions();
+      setViewModal(null);
+    }
+  }
+
+  async function handleAdminDelete(memoryId: string | number) {
+    if (!confirm("Are you sure you want to delete this entry?")) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/admin/submissions/${memoryId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (res.ok) {
+      await fetchApprovedSubmissions();
+      setViewModal(null);
+    }
   }
 
   const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...communityMemories];
@@ -222,11 +266,52 @@ export default function Home() {
                 {mem.communitySubmission && mem.submittedBy && (
                   <span className="submitted-by">Submitted by {mem.submittedBy}</span>
                 )}
-                <h4>{mem.title}</h4>
-                <div className="memory-year">Date: {mem.date}</div>
-                {mem.description && <p>{mem.description}</p>}
-                {mem.image && <img src={mem.image} alt={mem.title} />}
-                {mem.url && <a href={mem.url} target="_blank" rel="noopener noreferrer" className="memory-link">View more info</a>}
+                {editingMemoryId === mem.id ? (
+                  <div className="admin-edit-form">
+                    <label>Title</label>
+                    <input value={editFields.title} onChange={(e) => setEditFields({ ...editFields, title: e.target.value })} />
+                    <label>Description</label>
+                    <textarea value={editFields.description} onChange={(e) => setEditFields({ ...editFields, description: e.target.value })} />
+                    <label>Date</label>
+                    <input type="date" value={editFields.date} onChange={(e) => setEditFields({ ...editFields, date: e.target.value })} />
+                    <label>Category</label>
+                    <select value={editFields.category} onChange={(e) => setEditFields({ ...editFields, category: e.target.value as Category })}>
+                      {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                    <label>URL</label>
+                    <input value={editFields.url} onChange={(e) => setEditFields({ ...editFields, url: e.target.value })} />
+                    <label>Image URL</label>
+                    <input value={editFields.image_url} onChange={(e) => setEditFields({ ...editFields, image_url: e.target.value })} />
+                    <div className="admin-edit-actions">
+                      <button className="admin-save-btn" onClick={() => handleAdminSave(mem.id)}>Save</button>
+                      <button className="admin-cancel-btn" onClick={() => setEditingMemoryId(null)}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h4>{mem.title}</h4>
+                    <div className="memory-year">Date: {mem.date}</div>
+                    {mem.description && <p>{mem.description}</p>}
+                    {mem.image && <img src={mem.image} alt={mem.title} />}
+                    {mem.url && <a href={mem.url} target="_blank" rel="noopener noreferrer" className="memory-link">View more info</a>}
+                    {isAdmin && mem.communitySubmission && (
+                      <div className="admin-actions">
+                        <button className="admin-edit-btn" onClick={() => {
+                          setEditingMemoryId(mem.id);
+                          setEditFields({
+                            title: mem.title,
+                            description: mem.description || "",
+                            date: mem.date,
+                            category: mem.category,
+                            url: mem.url || "",
+                            image_url: mem.image || "",
+                          });
+                        }}>Edit</button>
+                        <button className="admin-delete-btn" onClick={() => handleAdminDelete(mem.id)}>Delete</button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             ))}
             <button className="modal-close" onClick={() => setViewModal(null)}>Close</button>
