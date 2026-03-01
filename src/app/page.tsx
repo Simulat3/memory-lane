@@ -269,8 +269,7 @@ export default function Home() {
           </div>
 
           <div className="action-buttons">
-            <button className="add-btn" onClick={() => setAddModal(true)}>+ Add a Memory</button>
-            <button className="add-btn submit-btn" onClick={() => setSubmitModal(true)}>Submit an Event</button>
+            <button className="add-btn submit-btn" onClick={() => setSubmitModal(true)}>Submit a Memory</button>
           </div>
         </div>
 
