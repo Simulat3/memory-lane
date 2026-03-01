@@ -21,27 +21,13 @@ const MONTH_NAMES = [
   "July","August","September","October","November","December"
 ];
 
-function getSampleMemories(): Memory[] {
-  return [
-    { id: 1, title: "First day of school", description: "Nervous but excited — a brand new backpack and everything.", date: "1999-09-05", image: "", url: "", category: "memory" },
-    { id: 2, title: "Summer road trip", description: "Windows down, favourite songs on repeat.", date: "2004-07-14", image: "", url: "", category: "memory" },
-  ];
-}
-
 export default function Home() {
   const [currentMonth, setCurrentMonth] = useState(0);
   const [currentYear, setCurrentYear] = useState(2000);
-  const [memories, setMemories] = useState<Memory[]>([]);
   const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
   const [viewModal, setViewModal] = useState<{ month: number; day: number; memories: Memory[] } | null>(null);
-  const [addModal, setAddModal] = useState(false);
   const [submitModal, setSubmitModal] = useState(false);
-  const [formDate, setFormDate] = useState("");
-  const [formTitle, setFormTitle] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-  const [formUrl, setFormUrl] = useState("");
-  const [formCategory, setFormCategory] = useState<Category>("memory");
-  const [pendingImage, setPendingImage] = useState("");
+  const [submitDate, setSubmitDate] = useState<string | undefined>();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerMonth, setPickerMonth] = useState(0);
   const [pickerYear, setPickerYear] = useState(2000);
@@ -72,8 +58,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const saved = localStorage.getItem("nostalgiaMemories");
-    setMemories(saved ? JSON.parse(saved) : getSampleMemories());
     fetchApprovedSubmissions();
   }, [fetchApprovedSubmissions]);
 
@@ -89,13 +73,7 @@ export default function Home() {
     audio.play().catch(() => {});
   }
 
-  useEffect(() => {
-    if (memories.length > 0) {
-      localStorage.setItem("nostalgiaMemories", JSON.stringify(memories));
-    }
-  }, [memories]);
-
-  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...memories, ...communityMemories];
+  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...communityMemories];
 
   function getMemoriesForDate(year: number, month: number, day: number): Memory[] {
     const y = String(year);
@@ -116,55 +94,10 @@ export default function Home() {
     setCurrentYear(y);
   }
 
-  function openAddWithDate(year: number, month: number, day: number) {
+  function openSubmitWithDate(year: number, month: number, day: number) {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    setFormDate(dateStr);
-    setAddModal(true);
-  }
-
-  function closeAddModal() {
-    setAddModal(false);
-    setFormTitle("");
-    setFormDesc("");
-    setFormDate("");
-    setFormUrl("");
-    setFormCategory("memory");
-    setPendingImage("");
-  }
-
-  function saveMemory() {
-    if (!formTitle.trim() || !formDate) {
-      alert("Please fill in at least a title and date!");
-      return;
-    }
-    const newMem: Memory = {
-      id: Date.now(),
-      title: formTitle.trim(),
-      description: formDesc.trim(),
-      date: formDate,
-      image: pendingImage,
-      url: formUrl.trim(),
-      category: formCategory,
-    };
-    setMemories([...memories, newMem]);
-    closeAddModal();
-  }
-
-  function deleteMemory(id: number | string) {
-    if (confirm("Remove this memory?")) {
-      setMemories(memories.filter((m) => m.id !== id));
-      setViewModal(null);
-    }
-  }
-
-  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setPendingImage(ev.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    setSubmitDate(dateStr);
+    setSubmitModal(true);
   }
 
   const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -253,7 +186,7 @@ export default function Home() {
                   <div
                     key={d}
                     className={`day${isToday ? " today" : ""}${hasMemory ? " has-memory" : ""}`}
-                    onClick={() => hasMemory ? setViewModal({ month: currentMonth, day: d, memories: dayMemories }) : openAddWithDate(currentYear, currentMonth, d)}
+                    onClick={() => hasMemory ? setViewModal({ month: currentMonth, day: d, memories: dayMemories }) : openSubmitWithDate(currentYear, currentMonth, d)}
                   >
                     <div className="day-number">{d}</div>
                     {hasMemory && (
@@ -269,7 +202,7 @@ export default function Home() {
           </div>
 
           <div className="action-buttons">
-            <button className="add-btn submit-btn" onClick={() => setSubmitModal(true)}>Submit a Memory</button>
+            <button className="add-btn submit-btn" onClick={() => { setSubmitDate(undefined); setSubmitModal(true); }}>Submit a Memory</button>
           </div>
         </div>
 
@@ -283,9 +216,6 @@ export default function Home() {
             <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day}</h3>
             {viewModal.memories.map((mem) => (
               <div key={mem.id} className="memory-entry">
-                {!mem.preset && !mem.communitySubmission && (
-                  <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>
-                )}
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
                   {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
                 </span>
@@ -304,64 +234,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* Add Modal */}
-      {addModal && (
-        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) closeAddModal(); }}>
-          <div className="modal">
-            <h3>Add a Memory</h3>
-            <div className="form-group">
-              <label>Category *</label>
-              <div className="category-selector">
-                {CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.value}
-                    type="button"
-                    className={`category-option${formCategory === cat.value ? " selected" : ""}`}
-                    style={{ borderColor: cat.color, ...(formCategory === cat.value ? { backgroundColor: cat.color, color: "#fff" } : {}) }}
-                    onClick={() => setFormCategory(cat.value)}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Title *</label>
-              <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder="e.g. First day of school" />
-            </div>
-            <div className="form-group">
-              <label>Description</label>
-              <textarea value={formDesc} onChange={(e) => setFormDesc(e.target.value)} placeholder="Tell the story..." />
-            </div>
-            <div className="form-group">
-              <label>Date *</label>
-              <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>Image (optional)</label>
-              <div className="image-upload-area" onClick={() => document.getElementById("memImage")?.click()}>
-                {pendingImage ? "Image selected — click to change" : "Click to upload an image"}
-                <input type="file" id="memImage" accept="image/*" onChange={handleImageUpload} />
-                {pendingImage && <img src={pendingImage} alt="Preview" />}
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Link (optional)</label>
-              <input type="url" value={formUrl} onChange={(e) => setFormUrl(e.target.value)} placeholder="e.g. https://en.wikipedia.org/wiki/..." />
-            </div>
-            <div className="form-actions">
-              <button className="btn-save" onClick={saveMemory}>Save Memory</button>
-              <button className="btn-cancel" onClick={closeAddModal}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Submit Event Modal */}
+      {/* Submit Memory Modal */}
       {submitModal && (
         <SubmitEventModal
-          onClose={() => setSubmitModal(false)}
+          onClose={() => { setSubmitModal(false); setSubmitDate(undefined); }}
           onSubmitted={fetchApprovedSubmissions}
+          defaultDate={submitDate}
         />
       )}
     </div>

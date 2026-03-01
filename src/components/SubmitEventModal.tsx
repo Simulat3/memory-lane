@@ -17,13 +17,14 @@ const CATEGORIES: { value: Category; label: string; color: string }[] = [
 interface SubmitEventModalProps {
   onClose: () => void;
   onSubmitted: () => void;
+  defaultDate?: string;
 }
 
-export default function SubmitEventModal({ onClose, onSubmitted }: SubmitEventModalProps) {
-  const { user, signIn } = useAuth();
+export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: SubmitEventModalProps) {
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(defaultDate || "");
   const [category, setCategory] = useState<Category>("memory");
   const [url, setUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -33,7 +34,7 @@ export default function SubmitEventModal({ onClose, onSubmitted }: SubmitEventMo
     return (
       <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
         <div className="modal">
-          <h3>Submit an Event</h3>
+          <h3>Submit a Memory</h3>
           <div className="submit-auth-prompt">
             <p>Sign in to submit cultural moments for the calendar.</p>
           </div>
@@ -73,7 +74,7 @@ export default function SubmitEventModal({ onClose, onSubmitted }: SubmitEventMo
       onSubmitted();
     } else {
       const err = await res.json();
-      alert(err.error || "Failed to submit event.");
+      alert(err.error || "Failed to submit memory.");
     }
   }
 
@@ -81,9 +82,9 @@ export default function SubmitEventModal({ onClose, onSubmitted }: SubmitEventMo
     return (
       <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
         <div className="modal">
-          <h3>Submit an Event</h3>
+          <h3>Submit a Memory</h3>
           <div className="submit-success">
-            <p>Your event has been submitted for review!</p>
+            <p>Your memory has been submitted for review!</p>
             <p>An admin will approve it before it appears on the calendar.</p>
           </div>
           <button className="modal-close" onClick={onClose}>Close</button>
@@ -95,7 +96,7 @@ export default function SubmitEventModal({ onClose, onSubmitted }: SubmitEventMo
   return (
     <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal">
-        <h3>Submit an Event</h3>
+        <h3>Submit a Memory</h3>
         <div className="form-group">
           <label>Category *</label>
           <div className="category-selector">
