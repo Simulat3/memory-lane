@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, description, date, category, url } = body;
+  const { title, description, date, category, url, image_url } = body;
 
   if (!title || !date || !category) {
     return NextResponse.json({ error: "Title, date, and category are required" }, { status: 400 });
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
       date,
       category,
       url: url || "",
+      image_url: image_url || "",
       status: "pending",
     })
     .select()

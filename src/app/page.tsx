@@ -44,7 +44,7 @@ export default function Home() {
           title: sub.title,
           description: sub.description,
           date: sub.date,
-          image: "",
+          image: sub.image_url || "",
           url: sub.url,
           category: sub.category,
           communitySubmission: true,

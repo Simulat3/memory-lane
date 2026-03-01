@@ -145,6 +145,11 @@ export default function AdminPage() {
                       <span>Category: {sub.category}</span>
                     </div>
                     {sub.description && <p>{sub.description}</p>}
+                    {sub.image_url && (
+                      <div className="admin-card-image">
+                        <img src={sub.image_url} alt={sub.title} style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 4, marginTop: 8 }} />
+                      </div>
+                    )}
                     {sub.url && (
                       <a href={sub.url} target="_blank" rel="noopener noreferrer" className="memory-link">
                         {sub.url}

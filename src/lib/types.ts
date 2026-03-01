@@ -21,6 +21,7 @@ export interface Submission {
   date: string;
   category: Category;
   url: string;
+  image_url: string;
   status: "pending" | "approved" | "rejected";
   created_at: string;
   reviewed_at: string | null;
