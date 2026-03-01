@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { CULTURAL_MOMENTS } from "../data/cultural-moments";
-
-type Category = "key-event" | "memory" | "birthday" | "music" | "movie-tv" | "gaming";
+import AuthButton from "../components/AuthButton";
+import SubmitEventModal from "../components/SubmitEventModal";
+import type { Category, Memory, Submission } from "../lib/types";
 
 const CATEGORIES: { value: Category; label: string; color: string }[] = [
   { value: "key-event", label: "Key Event", color: "#cc0000" },
@@ -14,17 +15,6 @@ const CATEGORIES: { value: Category; label: string; color: string }[] = [
   { value: "movie-tv", label: "Movie / TV", color: "#00994d" },
   { value: "gaming", label: "Gaming", color: "#e65c00" },
 ];
-
-interface Memory {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  image: string;
-  url: string;
-  category: Category;
-  preset?: boolean;
-}
 
 const MONTH_NAMES = [
   "January","February","March","April","May","June",
@@ -42,8 +32,10 @@ export default function Home() {
   const [currentMonth, setCurrentMonth] = useState(0);
   const [currentYear, setCurrentYear] = useState(2000);
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
   const [viewModal, setViewModal] = useState<{ month: number; day: number; memories: Memory[] } | null>(null);
   const [addModal, setAddModal] = useState(false);
+  const [submitModal, setSubmitModal] = useState(false);
   const [formDate, setFormDate] = useState("");
   const [formTitle, setFormTitle] = useState("");
   const [formDesc, setFormDesc] = useState("");
@@ -56,10 +48,34 @@ export default function Home() {
 
   const [showStartup, setShowStartup] = useState(true);
 
+  const fetchApprovedSubmissions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/submissions");
+      if (res.ok) {
+        const data: Submission[] = await res.json();
+        const mapped: Memory[] = data.map((sub) => ({
+          id: sub.id,
+          title: sub.title,
+          description: sub.description,
+          date: sub.date,
+          image: "",
+          url: sub.url,
+          category: sub.category,
+          communitySubmission: true,
+          submittedBy: sub.users?.display_name || sub.users?.email || undefined,
+        }));
+        setCommunityMemories(mapped);
+      }
+    } catch {
+      // Supabase not configured yet — silently ignore
+    }
+  }, []);
+
   useEffect(() => {
     const saved = localStorage.getItem("nostalgiaMemories");
     setMemories(saved ? JSON.parse(saved) : getSampleMemories());
-  }, []);
+    fetchApprovedSubmissions();
+  }, [fetchApprovedSubmissions]);
 
   function playStartupSound() {
     const audio = new Audio("/xp-startup.mp3");
@@ -79,7 +95,7 @@ export default function Home() {
     }
   }, [memories]);
 
-  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...memories];
+  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...memories, ...communityMemories];
 
   function getMemoriesForDate(year: number, month: number, day: number): Memory[] {
     const y = String(year);
@@ -134,7 +150,7 @@ export default function Home() {
     closeAddModal();
   }
 
-  function deleteMemory(id: number) {
+  function deleteMemory(id: number | string) {
     if (confirm("Remove this memory?")) {
       setMemories(memories.filter((m) => m.id !== id));
       setViewModal(null);
@@ -181,6 +197,7 @@ export default function Home() {
             <h1>Nostalgia Calendar</h1>
             <p>Nostalgia Fuels the Future</p>
           </div>
+          <AuthButton />
         </header>
 
         <div className="window-body">
@@ -251,7 +268,10 @@ export default function Home() {
             </div>
           </div>
 
-          <button className="add-btn" onClick={() => setAddModal(true)}>+ Add a Memory</button>
+          <div className="action-buttons">
+            <button className="add-btn" onClick={() => setAddModal(true)}>+ Add a Memory</button>
+            <button className="add-btn submit-btn" onClick={() => setSubmitModal(true)}>Submit an Event</button>
+          </div>
         </div>
 
         <footer>Revive Culture</footer>
@@ -264,10 +284,15 @@ export default function Home() {
             <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day}</h3>
             {viewModal.memories.map((mem) => (
               <div key={mem.id} className="memory-entry">
-                {!mem.preset && <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>}
+                {!mem.preset && !mem.communitySubmission && (
+                  <button className="delete-btn" onClick={() => deleteMemory(mem.id)}>&#10005; Delete</button>
+                )}
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
                   {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
                 </span>
+                {mem.communitySubmission && mem.submittedBy && (
+                  <span className="submitted-by">Submitted by {mem.submittedBy}</span>
+                )}
                 <h4>{mem.title}</h4>
                 <div className="memory-year">Date: {mem.date}</div>
                 {mem.description && <p>{mem.description}</p>}
@@ -331,6 +356,14 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Submit Event Modal */}
+      {submitModal && (
+        <SubmitEventModal
+          onClose={() => setSubmitModal(false)}
+          onSubmitted={fetchApprovedSubmissions}
+        />
       )}
     </div>
   );

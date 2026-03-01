@@ -1,4 +1,4 @@
-type Category = "key-event" | "memory" | "birthday" | "music" | "movie-tv" | "gaming";
+import type { Category } from "../lib/types";
 
 export interface CulturalMoment {
   id: number;
