@@ -13,16 +13,27 @@ export default function AdminPage() {
   const [actioningId, setActioningId] = useState<string | null>(null);
 
   const fetchPending = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.error("Admin: No session found");
+        setFetching(false);
+        return;
+      }
 
-    const res = await fetch("/api/admin/submissions", {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    });
+      const res = await fetch("/api/admin/submissions", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      setSubmissions(data);
+      if (res.ok) {
+        const data = await res.json();
+        setSubmissions(data);
+      } else {
+        const err = await res.json();
+        console.error("Admin fetch error:", res.status, err);
+      }
+    } catch (e) {
+      console.error("Admin fetch exception:", e);
     }
     setFetching(false);
   }, []);

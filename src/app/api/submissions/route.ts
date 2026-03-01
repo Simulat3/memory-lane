@@ -4,9 +4,11 @@ import { getSupabaseAdmin } from "../../../lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const { data, error } = await getSupabaseAdmin()
+  const supabase = getSupabaseAdmin();
+
+  const { data: submissions, error } = await supabase
     .from("submissions")
-    .select("*, users(display_name, email)")
+    .select("*")
     .eq("status", "approved")
     .order("created_at", { ascending: false });
 
@@ -14,7 +16,20 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Fetch user info separately
+  const userIds = [...new Set(submissions.map((s: { user_id: string }) => s.user_id))];
+  const { data: users } = await supabase
+    .from("users")
+    .select("id, display_name, email")
+    .in("id", userIds);
+
+  const userMap = new Map((users || []).map((u: { id: string; display_name: string; email: string }) => [u.id, u]));
+  const enriched = submissions.map((s: { user_id: string }) => ({
+    ...s,
+    users: userMap.get(s.user_id) || null,
+  }));
+
+  return NextResponse.json(enriched);
 }
 
 export async function POST(request: NextRequest) {
