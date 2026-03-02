@@ -38,6 +38,14 @@ export default function Home() {
   const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
   const [showStartup, setShowStartup] = useState(true);
+  const [bootReady, setBootReady] = useState(false);
+
+  useEffect(() => {
+    if (showStartup) {
+      const timer = setTimeout(() => setBootReady(true), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showStartup]);
 
   const fetchApprovedSubmissions = useCallback(async () => {
     try {
@@ -151,6 +159,7 @@ export default function Home() {
   if (showStartup) {
     return (
       <div className="xp-boot" onClick={() => {
+        if (!bootReady) return;
         playStartupSound();
         setShowStartup(false);
       }}>
@@ -160,7 +169,7 @@ export default function Home() {
         <div className="xp-boot-bar">
           <div className="xp-boot-progress" />
         </div>
-        <div className="xp-boot-click">Click anywhere to start</div>
+        {bootReady && <div className="xp-boot-click">Click anywhere to start</div>}
       </div>
     );
   }
