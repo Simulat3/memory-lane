@@ -164,7 +164,7 @@ export default function Home() {
         setShowStartup(false);
       }}>
         <div className="xp-boot-logo">
-          <video src="/logospin.mp4" autoPlay loop muted playsInline width={150} height={150} />
+          <Image src="/logo.png" alt="Y2K Logo" width={150} height={150} />
         </div>
         <div className="xp-boot-bar">
           <div className="xp-boot-progress" />
