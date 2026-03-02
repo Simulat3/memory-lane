@@ -64,7 +64,13 @@
     font-family: Tahoma, sans-serif;
     font-size: 0.8rem;
     color: rgba(255,255,255,0.4);
-    animation: blink 1.5s infinite;
+    animation: fadeIn 1s ease-in forwards, blink 1.5s 1s infinite;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
 @keyframes blink {
