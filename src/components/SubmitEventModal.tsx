@@ -42,7 +42,7 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
         <div className="modal">
           <h3>Submit a Memory</h3>
           <div className="submit-auth-prompt">
-            <p>Sign in to submit cultural moments for the calendar.</p>
+            <p>Sign in to submit a memory.</p>
           </div>
           <button className="modal-close" onClick={onClose}>Close</button>
         </div>
