@@ -26,12 +26,11 @@ export default function AuthButton() {
         {showModal && (
           <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h3>{isSignUp ? "Create Account" : "Sign In"}</h3>
+              <h3>{isSignUp ? "Create Account" : "Sign In"} <button className="modal-close-x" onClick={() => { setShowModal(false); setSignUpSuccess(false); }}>&#10005;</button></h3>
 
               {signUpSuccess ? (
                 <div className="submit-success">
                   <p>Account created! Check your email to confirm, then sign in.</p>
-                  <button className="modal-close" onClick={() => { setShowModal(false); setSignUpSuccess(false); }}>Close</button>
                 </div>
               ) : (
                 <>

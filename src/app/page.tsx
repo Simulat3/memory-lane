@@ -268,7 +268,7 @@ export default function Home() {
       {viewModal && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setViewModal(null); }}>
           <div className="modal">
-            <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day}</h3>
+            <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day} <button className="modal-close-x" onClick={() => setViewModal(null)}>&#10005;</button></h3>
             {viewModal.memories.map((mem) => (
               <div key={mem.id} className="memory-entry">
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
@@ -325,7 +325,6 @@ export default function Home() {
                 )}
               </div>
             ))}
-            <button className="modal-close" onClick={() => setViewModal(null)}>Close</button>
           </div>
         </div>
       )}
@@ -334,22 +333,18 @@ export default function Home() {
       {infoModal && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setInfoModal(false); }}>
           <div className="modal">
-            <h3>Info</h3>
+            <h3>Info <button className="modal-close-x" onClick={() => setInfoModal(false)}>&#10005;</button></h3>
             <p>The nostalgia calendar is an ever-growing repository of the past, present, and future. A living archive of the things that shaped us.</p>
             <p>It&apos;s an interactive space for memories: shared, discovered, and kept alive by a community of revivalists.</p>
             <p>Click any date to explore its memories, or submit your own. Community submissions are reviewed before appearing on the calendar.</p>
             <p>You can currently submit in the following categories:</p>
-            <p style={{ lineHeight: "1.8" }}>
-              <strong>Key Events</strong><br />
-              <strong>Memories</strong><br />
-              <strong>Birthdays</strong><br />
-              <strong>Music</strong><br />
-              <strong>Movies &amp; TV</strong><br />
-              <strong>Gaming</strong>
-            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
+              {CATEGORIES.map((c) => (
+                <span key={c.value} className="category-badge" style={{ backgroundColor: c.color, textAlign: "center" }}>{c.label}</span>
+              ))}
+            </div>
             <p>To submit, create an account.</p>
             <p>Nostalgia fuels the future.</p>
-            <button className="modal-close" onClick={() => setInfoModal(false)}>Close</button>
           </div>
         </div>
       )}

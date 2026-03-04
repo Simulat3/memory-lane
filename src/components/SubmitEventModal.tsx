@@ -40,11 +40,10 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
     return (
       <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
         <div className="modal">
-          <h3>Submit a Memory</h3>
+          <h3>Submit a Memory <button className="modal-close-x" onClick={onClose}>&#10005;</button></h3>
           <div className="submit-auth-prompt">
             <p>Sign in to submit a memory.</p>
           </div>
-          <button className="modal-close" onClick={onClose}>Close</button>
         </div>
       </div>
     );
@@ -141,12 +140,11 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
     return (
       <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
         <div className="modal">
-          <h3>Submit a Memory</h3>
+          <h3>Submit a Memory <button className="modal-close-x" onClick={onClose}>&#10005;</button></h3>
           <div className="submit-success">
             <p>Your memory has been submitted for review!</p>
             <p>An admin will approve it before it appears on the calendar.</p>
           </div>
-          <button className="modal-close" onClick={onClose}>Close</button>
         </div>
       </div>
     );
@@ -155,7 +153,7 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
   return (
     <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal">
-        <h3>Submit a Memory</h3>
+        <h3>Submit a Memory <button className="modal-close-x" onClick={onClose}>&#10005;</button></h3>
         <div className="form-group">
           <label>Category *</label>
           <div className="category-selector">
