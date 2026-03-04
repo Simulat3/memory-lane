@@ -340,12 +340,12 @@ export default function Home() {
             <p>Click any date to explore its memories, or submit your own. Community submissions are reviewed before appearing on the calendar.</p>
             <p>You can currently submit in the following categories:</p>
             <p style={{ lineHeight: "1.8" }}>
-              Key Events<br />
-              Memories<br />
-              Birthdays<br />
-              Music<br />
-              Movies &amp; TV<br />
-              Gaming
+              <strong>Key Events</strong><br />
+              <strong>Memories</strong><br />
+              <strong>Birthdays</strong><br />
+              <strong>Music</strong><br />
+              <strong>Movies &amp; TV</strong><br />
+              <strong>Gaming</strong>
             </p>
             <p>To submit, create an account.</p>
             <p>Nostalgia fuels the future.</p>
