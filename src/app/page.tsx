@@ -168,7 +168,9 @@ export default function Home() {
           <Image src="/logo.png" alt="Y2K Logo" width={150} height={150} />
         </div>
         <div className="xp-boot-bar">
-          <div className="xp-boot-progress" />
+          <div className="xp-boot-progress">
+            <span /><span /><span />
+          </div>
         </div>
         {bootReady && <div className="xp-boot-click">Click anywhere to start</div>}
       </div>
