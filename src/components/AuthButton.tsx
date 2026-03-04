@@ -93,7 +93,7 @@ export default function AuthButton() {
   return (
     <div className="auth-user">
       <span className="auth-username">{profile?.display_name || user.email}</span>
-      <button className="auth-btn auth-btn-small" onClick={signOut}>
+      <button className="auth-btn" onClick={signOut}>
         Sign Out
       </button>
     </div>
