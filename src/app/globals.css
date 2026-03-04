@@ -731,6 +731,8 @@ footer {
     border-radius: 3px;
     box-shadow: 1px 1px 0 #fff inset, -1px -1px 0 #aca899 inset;
     white-space: nowrap;
+    min-width: 60px;
+    text-align: center;
 }
 
 .auth-btn:hover {
