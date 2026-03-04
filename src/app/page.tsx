@@ -334,17 +334,21 @@ export default function Home() {
       {infoModal && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setInfoModal(false); }}>
           <div className="modal">
-            <h3>About Nostalgia Calendar</h3>
-            <p>Nostalgia Calendar is a community-driven time capsule celebrating the culture, moments, and memories that shaped us. Browse key events, birthdays, music, movies, TV, and gaming milestones from the past.</p>
-            <p>Click any date to view its memories or submit your own. Community submissions are reviewed before appearing on the calendar.</p>
-            <h4>Categories</h4>
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {CATEGORIES.map((c) => (
-                <li key={c.value} style={{ marginBottom: "4px" }}>
-                  <span className="category-badge" style={{ backgroundColor: c.color }}>{c.label}</span>
-                </li>
-              ))}
-            </ul>
+            <h3>Info</h3>
+            <p>The nostalgia calendar is an ever-growing repository of the past, present, and future — a living archive of the things that shaped us.</p>
+            <p>It&apos;s an interactive space for memories: shared, discovered, and kept alive by a community of revivalists.</p>
+            <p>Click any date to explore its memories, or submit your own. Community submissions are reviewed before appearing on the calendar.</p>
+            <p>You can currently submit in the following categories:</p>
+            <p style={{ lineHeight: "1.8" }}>
+              — Key Events<br />
+              — Memories<br />
+              — Birthdays<br />
+              — Music<br />
+              — Movies &amp; TV<br />
+              — Gaming
+            </p>
+            <p>To submit, create an account.</p>
+            <p><em>Nostalgia fuels the future.</em></p>
             <button className="modal-close" onClick={() => setInfoModal(false)}>Close</button>
           </div>
         </div>
