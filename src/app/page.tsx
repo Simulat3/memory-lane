@@ -261,7 +261,7 @@ export default function Home() {
           </div>
         </div>
 
-        <footer>Revive Culture</footer>
+        <footer><span>Created by @JSimulat3</span><span>Revive Culture</span></footer>
       </div>
 
       {/* View Modal */}

@@ -716,8 +716,10 @@ header p {
 }
 
 footer {
-    text-align: center;
-    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
     color: #666;
     font-family: Tahoma, sans-serif;
     font-size: 0.7rem;
@@ -809,7 +811,7 @@ footer {
     display: flex;
     gap: 8px;
     justify-content: center;
-    margin: 12px auto;
+    margin: 12px auto 4px;
 }
 
 .submit-btn {
