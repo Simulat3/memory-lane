@@ -37,6 +37,7 @@ export default function Home() {
   const [editingMemoryId, setEditingMemoryId] = useState<string | number | null>(null);
   const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
+  const [infoModal, setInfoModal] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
   const [bootReady, setBootReady] = useState(false);
 
@@ -184,6 +185,7 @@ export default function Home() {
             <p>Nostalgia Fuels the Future</p>
           </div>
           <AuthButton />
+          <button className="auth-btn" onClick={() => setInfoModal(true)}>Info</button>
         </header>
 
         <div className="window-body">
@@ -324,6 +326,26 @@ export default function Home() {
               </div>
             ))}
             <button className="modal-close" onClick={() => setViewModal(null)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* Info Modal */}
+      {infoModal && (
+        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setInfoModal(false); }}>
+          <div className="modal">
+            <h3>About Nostalgia Calendar</h3>
+            <p>Nostalgia Calendar is a community-driven time capsule celebrating the culture, moments, and memories that shaped us. Browse key events, birthdays, music, movies, TV, and gaming milestones from the past.</p>
+            <p>Click any date to view its memories or submit your own. Community submissions are reviewed before appearing on the calendar.</p>
+            <h4>Categories</h4>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {CATEGORIES.map((c) => (
+                <li key={c.value} style={{ marginBottom: "4px" }}>
+                  <span className="category-badge" style={{ backgroundColor: c.color }}>{c.label}</span>
+                </li>
+              ))}
+            </ul>
+            <button className="modal-close" onClick={() => setInfoModal(false)}>Close</button>
           </div>
         </div>
       )}
