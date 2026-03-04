@@ -12,6 +12,7 @@ export interface Memory {
   communitySubmission?: boolean;
   submittedBy?: string;
   isPrivate?: boolean;
+  userId?: string;
 }
 
 export interface Submission {

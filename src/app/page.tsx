@@ -72,6 +72,7 @@ export default function Home() {
           communitySubmission: true,
           submittedBy: sub.users?.display_name || sub.users?.email || undefined,
           isPrivate: sub.is_public === false,
+          userId: sub.user_id,
         }));
         setCommunityMemories(mapped);
       }
@@ -126,6 +127,45 @@ export default function Home() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     const res = await fetch(`/api/admin/submissions/${memoryId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (res.ok) {
+      await fetchApprovedSubmissions();
+      setViewModal(null);
+    }
+  }
+
+  async function handleUserSave(memoryId: string | number) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/submissions/${memoryId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        title: editFields.title,
+        description: editFields.description,
+        date: editFields.date,
+        category: editFields.category,
+        url: editFields.url,
+        image_url: editFields.image_url,
+      }),
+    });
+    if (res.ok) {
+      setEditingMemoryId(null);
+      await fetchApprovedSubmissions();
+      setViewModal(null);
+    }
+  }
+
+  async function handleUserDelete(memoryId: string | number) {
+    if (!confirm("Are you sure you want to delete this memory?")) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/submissions/${memoryId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
@@ -308,7 +348,7 @@ export default function Home() {
                     <label>Image URL</label>
                     <input value={editFields.image_url} onChange={(e) => setEditFields({ ...editFields, image_url: e.target.value })} />
                     <div className="admin-edit-actions">
-                      <button className="admin-save-btn" onClick={() => handleAdminSave(mem.id)}>Save</button>
+                      <button className="admin-save-btn" onClick={() => mem.isPrivate && user?.id === mem.userId ? handleUserSave(mem.id) : handleAdminSave(mem.id)}>Save</button>
                       <button className="admin-cancel-btn" onClick={() => setEditingMemoryId(null)}>Cancel</button>
                     </div>
                   </div>
@@ -333,6 +373,22 @@ export default function Home() {
                           });
                         }}>Edit</button>
                         <button className="admin-delete-btn" onClick={() => handleAdminDelete(mem.id)}>Delete</button>
+                      </div>
+                    )}
+                    {!isAdmin && mem.isPrivate && user?.id === mem.userId && (
+                      <div className="admin-actions">
+                        <button className="admin-edit-btn" onClick={() => {
+                          setEditingMemoryId(mem.id);
+                          setEditFields({
+                            title: mem.title,
+                            description: mem.description || "",
+                            date: mem.date,
+                            category: mem.category,
+                            url: mem.url || "",
+                            image_url: mem.image || "",
+                          });
+                        }}>Edit</button>
+                        <button className="admin-delete-btn" onClick={() => handleUserDelete(mem.id)}>Delete</button>
                       </div>
                     )}
                   </>
