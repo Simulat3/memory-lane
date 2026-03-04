@@ -845,6 +845,22 @@ footer {
     font-weight: bold;
 }
 
+/* Visibility Toggle */
+.visibility-toggle {
+    display: flex;
+    gap: 6px;
+}
+
+/* Private Badge */
+.private-badge {
+    display: inline-block;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #666;
+    margin-left: 6px;
+}
+
 /* Submit Auth Prompt */
 .submit-auth-prompt {
     padding: 20px 15px;

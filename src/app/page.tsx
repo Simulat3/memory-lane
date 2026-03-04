@@ -24,7 +24,7 @@ const MONTH_NAMES = [
 ];
 
 export default function Home() {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(0);
   const [currentYear, setCurrentYear] = useState(2000);
   const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
@@ -50,7 +50,15 @@ export default function Home() {
 
   const fetchApprovedSubmissions = useCallback(async () => {
     try {
-      const res = await fetch("/api/submissions");
+      const url = user ? `/api/submissions?user_id=${user.id}` : "/api/submissions";
+      const headers: HeadersInit = {};
+      if (user) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          headers["Authorization"] = `Bearer ${session.access_token}`;
+        }
+      }
+      const res = await fetch(url, { headers });
       if (res.ok) {
         const data: Submission[] = await res.json();
         const mapped: Memory[] = data.map((sub) => ({
@@ -63,13 +71,14 @@ export default function Home() {
           category: sub.category,
           communitySubmission: true,
           submittedBy: sub.users?.display_name || sub.users?.email || undefined,
+          isPrivate: sub.is_public === false,
         }));
         setCommunityMemories(mapped);
       }
     } catch {
       // Supabase not configured yet — silently ignore
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchApprovedSubmissions();
@@ -276,6 +285,9 @@ export default function Home() {
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
                   {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
                 </span>
+                {mem.isPrivate && (
+                  <span className="private-badge">&#128274; Private</span>
+                )}
                 {mem.communitySubmission && mem.submittedBy && (
                   <span className="submitted-by">Submitted by {mem.submittedBy}</span>
                 )}

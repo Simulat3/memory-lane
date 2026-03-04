@@ -30,6 +30,7 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
   const [date, setDate] = useState(defaultDate || "");
   const [category, setCategory] = useState<Category>("memory");
   const [url, setUrl] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -122,7 +123,7 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ title: title.trim(), description: description.trim(), date, category, url: url.trim(), image_url }),
+      body: JSON.stringify({ title: title.trim(), description: description.trim(), date, category, url: url.trim(), image_url, is_public: isPublic }),
     });
 
     setSubmitting(false);
@@ -142,8 +143,14 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
         <div className="modal">
           <h3>Submit a Memory <button className="modal-close-x" onClick={onClose}>&#10005;</button></h3>
           <div className="submit-success">
-            <p>Your memory has been submitted for review!</p>
-            <p>An admin will approve it before it appears on the calendar.</p>
+            {isPublic ? (
+              <>
+                <p>Your memory has been submitted for review!</p>
+                <p>An admin will approve it before it appears on the calendar.</p>
+              </>
+            ) : (
+              <p>Your private memory has been saved!</p>
+            )}
           </div>
         </div>
       </div>
@@ -225,9 +232,33 @@ export default function SubmitEventModal({ onClose, onSubmitted, defaultDate }: 
           <label>Link (optional)</label>
           <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="e.g. https://en.wikipedia.org/wiki/..." />
         </div>
+        <div className="form-group">
+          <label>Visibility</label>
+          <div className="visibility-toggle">
+            <button
+              type="button"
+              className={`category-option${isPublic ? " selected" : ""}`}
+              style={{ borderColor: "#0054e3", ...(isPublic ? { backgroundColor: "#0054e3", color: "#fff" } : {}) }}
+              onClick={() => setIsPublic(true)}
+            >
+              Public
+            </button>
+            <button
+              type="button"
+              className={`category-option${!isPublic ? " selected" : ""}`}
+              style={{ borderColor: "#666", ...(!isPublic ? { backgroundColor: "#666", color: "#fff" } : {}) }}
+              onClick={() => setIsPublic(false)}
+            >
+              Private
+            </button>
+          </div>
+          <div style={{ fontFamily: "Tahoma, sans-serif", fontSize: "0.7rem", color: "#666", marginTop: 4 }}>
+            {isPublic ? "Public memories are reviewed before appearing" : "Private memories are only visible to you"}
+          </div>
+        </div>
         <div className="form-actions">
           <button className="btn-save" onClick={handleSubmit} disabled={submitting}>
-            {submitting ? "Submitting..." : "Submit for Review"}
+            {submitting ? "Submitting..." : isPublic ? "Submit for Review" : "Save Private Memory"}
           </button>
           <button className="btn-cancel" onClick={onClose}>Cancel</button>
         </div>

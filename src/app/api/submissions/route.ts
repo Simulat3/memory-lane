@@ -3,28 +3,48 @@ import { getSupabaseAdmin } from "../../../lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = getSupabaseAdmin();
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get("user_id");
 
-  const { data: submissions, error } = await supabase
+  // Fetch public approved submissions
+  const { data: publicSubmissions, error } = await supabase
     .from("submissions")
     .select("*")
     .eq("status", "approved")
+    .eq("is_public", true)
     .order("created_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  let allSubmissions = publicSubmissions || [];
+
+  // If user_id provided, also fetch their private approved submissions
+  if (userId) {
+    const { data: privateSubmissions } = await supabase
+      .from("submissions")
+      .select("*")
+      .eq("status", "approved")
+      .eq("is_public", false)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (privateSubmissions) {
+      allSubmissions = [...allSubmissions, ...privateSubmissions];
+    }
+  }
+
   // Fetch user info separately
-  const userIds = [...new Set(submissions.map((s: { user_id: string }) => s.user_id))];
-  const { data: users } = await supabase
-    .from("users")
-    .select("id, display_name, email")
-    .in("id", userIds);
+  const userIds = [...new Set(allSubmissions.map((s: { user_id: string }) => s.user_id))];
+  const { data: users } = userIds.length > 0
+    ? await supabase.from("users").select("id, display_name, email").in("id", userIds)
+    : { data: [] };
 
   const userMap = new Map((users || []).map((u: { id: string; display_name: string; email: string }) => [u.id, u]));
-  const enriched = submissions.map((s: { user_id: string }) => ({
+  const enriched = allSubmissions.map((s: { user_id: string }) => ({
     ...s,
     users: userMap.get(s.user_id) || null,
   }));
@@ -46,7 +66,8 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, description, date, category, url, image_url } = body;
+  const { title, description, date, category, url, image_url, is_public } = body;
+  const isPublic = is_public !== false;
 
   if (!title || !date || !category) {
     return NextResponse.json({ error: "Title, date, and category are required" }, { status: 400 });
@@ -62,7 +83,8 @@ export async function POST(request: NextRequest) {
       category,
       url: url || "",
       image_url: image_url || "",
-      status: "pending",
+      is_public: isPublic,
+      status: isPublic ? "pending" : "approved",
     })
     .select()
     .single();

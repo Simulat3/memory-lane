@@ -11,6 +11,7 @@ export interface Memory {
   preset?: boolean;
   communitySubmission?: boolean;
   submittedBy?: string;
+  isPrivate?: boolean;
 }
 
 export interface Submission {
@@ -22,6 +23,7 @@ export interface Submission {
   category: Category;
   url: string;
   image_url: string;
+  is_public: boolean;
   status: "pending" | "approved" | "rejected";
   created_at: string;
   reviewed_at: string | null;

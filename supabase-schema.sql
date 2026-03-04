@@ -21,6 +21,8 @@ create table public.submissions (
   date date not null,
   category text not null,
   url text default '',
+  image_url text default '',
+  is_public boolean default true,
   status text default 'pending' check (status in ('pending', 'approved', 'rejected')),
   created_at timestamptz default now(),
   reviewed_at timestamptz,
@@ -59,10 +61,10 @@ create policy "Users can update own profile"
   on public.users for update
   using (auth.uid() = id);
 
--- Submissions: anyone can read approved
+-- Submissions: anyone can read approved public submissions
 create policy "Approved submissions are publicly readable"
   on public.submissions for select
-  using (status = 'approved');
+  using (status = 'approved' and is_public = true);
 
 -- Submissions: authenticated users can read their own (any status)
 create policy "Users can read own submissions"
@@ -78,3 +80,14 @@ create policy "Authenticated users can submit"
 create index idx_submissions_status on public.submissions(status);
 create index idx_submissions_user_id on public.submissions(user_id);
 create index idx_submissions_date on public.submissions(date);
+
+-- ============================================
+-- Migration for existing deployments:
+-- ============================================
+-- ALTER TABLE public.submissions ADD COLUMN is_public boolean DEFAULT true;
+-- ALTER TABLE public.submissions ADD COLUMN image_url text DEFAULT '';
+--
+-- DROP POLICY "Approved submissions are publicly readable" ON public.submissions;
+-- CREATE POLICY "Approved submissions are publicly readable"
+--   ON public.submissions FOR SELECT
+--   USING (status = 'approved' AND is_public = true);
