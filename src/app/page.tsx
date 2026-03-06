@@ -298,7 +298,7 @@ export default function Home() {
                     {hasMemory && (
                       <>
                         <div className="memory-dot" style={{ backgroundColor: CATEGORIES.find(c => c.value === dayMemories[0].category)?.color || "#5cb85c" }} />
-                        <div className="memory-preview">{dayMemories[0].title}</div>
+                        <div className="memory-preview">{dayMemories.length > 1 ? `${dayMemories.length} entries` : dayMemories[0].title}</div>
                       </>
                     )}
                   </div>
