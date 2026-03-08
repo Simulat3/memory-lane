@@ -22,18 +22,19 @@ export async function GET(request: NextRequest) {
 
   let allSubmissions = publicSubmissions || [];
 
-  // If user_id provided, also fetch their private approved submissions
+  // If user_id provided, also fetch all of their own submissions (any status)
   if (userId) {
-    const { data: privateSubmissions } = await supabase
+    const { data: userSubmissions } = await supabase
       .from("submissions")
       .select("*")
-      .eq("status", "approved")
-      .eq("is_public", false)
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    if (privateSubmissions) {
-      allSubmissions = [...allSubmissions, ...privateSubmissions];
+    if (userSubmissions) {
+      // Merge without duplicates (public approved ones may already be in the list)
+      const existingIds = new Set(allSubmissions.map((s: { id: string }) => s.id));
+      const newOnes = userSubmissions.filter((s: { id: string }) => !existingIds.has(s.id));
+      allSubmissions = [...allSubmissions, ...newOnes];
     }
   }
 
