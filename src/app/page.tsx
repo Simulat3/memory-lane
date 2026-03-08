@@ -64,7 +64,7 @@ export default function Home() {
       const res = await fetch(url, { headers });
       if (res.ok) {
         const data: Submission[] = await res.json();
-        const mapped: Memory[] = data.map((sub) => ({
+        const mapped: Memory[] = data.filter((sub) => sub.status === "approved").map((sub) => ({
           id: sub.id,
           title: sub.title,
           description: sub.description,
