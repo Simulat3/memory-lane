@@ -125,13 +125,38 @@ create policy "Authenticated users can flag"
   on public.comment_flags for insert
   with check (auth.uid() = user_id);
 
--- 7. Indexes for performance
+-- 7. Reactions table (pager emoji likes)
+create table public.reactions (
+  id uuid default gen_random_uuid() primary key,
+  memory_id text not null,
+  memory_type text not null check (memory_type in ('preset', 'submission')),
+  user_id uuid references public.users(id) on delete cascade not null,
+  created_at timestamptz default now(),
+  unique(memory_id, memory_type, user_id)
+);
+
+alter table public.reactions enable row level security;
+
+create policy "Reactions are publicly readable"
+  on public.reactions for select
+  using (true);
+
+create policy "Authenticated users can react"
+  on public.reactions for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can remove own reactions"
+  on public.reactions for delete
+  using (auth.uid() = user_id);
+
+-- 8. Indexes for performance
 create index idx_submissions_status on public.submissions(status);
 create index idx_submissions_user_id on public.submissions(user_id);
 create index idx_submissions_date on public.submissions(date);
 create index idx_comments_memory on public.comments(memory_id, memory_type);
 create index idx_comments_user_id on public.comments(user_id);
 create index idx_comment_flags_comment_id on public.comment_flags(comment_id);
+create index idx_reactions_memory on public.reactions(memory_id, memory_type);
 
 -- ============================================
 -- Migration for existing deployments:

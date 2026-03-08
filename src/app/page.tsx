@@ -6,7 +6,7 @@ import { CULTURAL_MOMENTS } from "../data/cultural-moments";
 import AuthButton from "../components/AuthButton";
 import SubmitEventModal from "../components/SubmitEventModal";
 import ProfilePanel from "../components/ProfilePanel";
-import CommentsSection from "../components/CommentsSection";
+import MemoryDetail from "../components/MemoryDetail";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
 import type { Category, Memory, Submission } from "../lib/types";
@@ -31,6 +31,7 @@ export default function Home() {
   const [currentYear, setCurrentYear] = useState(2000);
   const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
   const [viewModal, setViewModal] = useState<{ month: number; day: number; memories: Memory[] } | null>(null);
+  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
   const [submitModal, setSubmitModal] = useState(false);
   const [submitDate, setSubmitDate] = useState<string | undefined>();
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -39,6 +40,7 @@ export default function Home() {
   const [editingMemoryId, setEditingMemoryId] = useState<string | number | null>(null);
   const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [infoModal, setInfoModal] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
@@ -199,6 +201,34 @@ export default function Home() {
     setCurrentYear(y);
   }
 
+  async function openDateView(month: number, day: number, memories: Memory[]) {
+    // If single entry, go straight to detail
+    if (memories.length === 1) {
+      setViewModal({ month, day, memories });
+      setSelectedMemory(memories[0]);
+    } else {
+      setViewModal({ month, day, memories });
+      // Fetch reaction counts for all memories in the list
+      const counts: Record<string, number> = {};
+      try {
+        await Promise.all(
+          memories.filter((m) => !m.isPrivate).map(async (mem) => {
+            const key = `${mem.id}`;
+            const type = mem.preset ? "preset" : "submission";
+            const res = await fetch(`/api/reactions?memory_id=${key}&memory_type=${type}`);
+            if (res.ok) {
+              const data = await res.json();
+              counts[key] = data.length;
+            }
+          })
+        );
+      } catch {
+        // ignore
+      }
+      setReactionCounts(counts);
+    }
+  }
+
   function openSubmitWithDate(year: number, month: number, day: number) {
     const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     setSubmitDate(dateStr);
@@ -295,7 +325,7 @@ export default function Home() {
                   <div
                     key={d}
                     className={`day${isToday ? " today" : ""}${hasMemory ? " has-memory" : ""}`}
-                    onClick={() => hasMemory ? setViewModal({ month: currentMonth, day: d, memories: dayMemories }) : openSubmitWithDate(currentYear, currentMonth, d)}
+                    onClick={() => hasMemory ? openDateView(currentMonth, d, dayMemories) : openSubmitWithDate(currentYear, currentMonth, d)}
                   >
                     <div className="day-number">{d}</div>
                     {hasMemory && (
@@ -318,94 +348,68 @@ export default function Home() {
         <footer><span>Created by @JSimulat3</span><span>Revive Culture</span></footer>
       </div>
 
-      {/* View Modal */}
-      {viewModal && (
+      {/* View Modal — List View */}
+      {viewModal && !selectedMemory && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setViewModal(null); }}>
           <div className="modal">
             <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day} <button className="modal-close-x" onClick={() => setViewModal(null)}>&#10005;</button></h3>
             {viewModal.memories.map((mem) => (
-              <div key={mem.id} className="memory-entry">
+              <div key={mem.id} className="memory-list-item" onClick={() => setSelectedMemory(mem)}>
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
                   {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
                 </span>
+                <div className="memory-list-info">
+                  <span className="memory-list-title">{mem.title}</span>
+                  {mem.communitySubmission && mem.submittedBy && (
+                    <span className="memory-list-author">by {mem.submittedBy}</span>
+                  )}
+                </div>
+                {!mem.isPrivate && (reactionCounts[String(mem.id)] || 0) > 0 && (
+                  <span className="memory-list-reactions">
+                    <span>&#128223;</span> {reactionCounts[String(mem.id)]}
+                  </span>
+                )}
                 {mem.isPrivate && (
-                  <span className="private-badge">&#128274; Private</span>
+                  <span className="private-badge">&#128274;</span>
                 )}
-                {mem.communitySubmission && mem.submittedBy && (
-                  <span className="submitted-by">Submitted by {mem.submittedBy}</span>
-                )}
-                {editingMemoryId === mem.id ? (
-                  <div className="admin-edit-form">
-                    <label>Title</label>
-                    <input value={editFields.title} onChange={(e) => setEditFields({ ...editFields, title: e.target.value })} />
-                    <label>Description</label>
-                    <textarea value={editFields.description} onChange={(e) => setEditFields({ ...editFields, description: e.target.value })} />
-                    <label>Date</label>
-                    <input type="date" value={editFields.date} onChange={(e) => setEditFields({ ...editFields, date: e.target.value })} />
-                    <label>Category</label>
-                    <select value={editFields.category} onChange={(e) => setEditFields({ ...editFields, category: e.target.value as Category })}>
-                      {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                    </select>
-                    <label>URL</label>
-                    <input value={editFields.url} onChange={(e) => setEditFields({ ...editFields, url: e.target.value })} />
-                    <label>Image URL</label>
-                    <input value={editFields.image_url} onChange={(e) => setEditFields({ ...editFields, image_url: e.target.value })} />
-                    <div className="admin-edit-actions">
-                      <button className="admin-save-btn" onClick={() => mem.isPrivate && user?.id === mem.userId ? handleUserSave(mem.id) : handleAdminSave(mem.id)}>Save</button>
-                      <button className="admin-cancel-btn" onClick={() => setEditingMemoryId(null)}>Cancel</button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <h4>{mem.title}</h4>
-                    <div className="memory-year">Date: {mem.date}</div>
-                    {mem.description && <p>{mem.description}</p>}
-                    {mem.image && <img src={mem.image} alt={mem.title} />}
-                    {mem.url && <a href={mem.url} target="_blank" rel="noopener noreferrer" className="memory-link">View more info</a>}
-                    {isAdmin && mem.communitySubmission && (
-                      <div className="admin-actions">
-                        <button className="admin-edit-btn" onClick={() => {
-                          setEditingMemoryId(mem.id);
-                          setEditFields({
-                            title: mem.title,
-                            description: mem.description || "",
-                            date: mem.date,
-                            category: mem.category,
-                            url: mem.url || "",
-                            image_url: mem.image || "",
-                          });
-                        }}>Edit</button>
-                        <button className="admin-delete-btn" onClick={() => handleAdminDelete(mem.id)}>Delete</button>
-                      </div>
-                    )}
-                    {!isAdmin && mem.isPrivate && user?.id === mem.userId && (
-                      <div className="admin-actions">
-                        <button className="admin-edit-btn" onClick={() => {
-                          setEditingMemoryId(mem.id);
-                          setEditFields({
-                            title: mem.title,
-                            description: mem.description || "",
-                            date: mem.date,
-                            category: mem.category,
-                            url: mem.url || "",
-                            image_url: mem.image || "",
-                          });
-                        }}>Edit</button>
-                        <button className="admin-delete-btn" onClick={() => handleUserDelete(mem.id)}>Delete</button>
-                      </div>
-                    )}
-                  </>
-                )}
-                {!mem.isPrivate && (
-                  <CommentsSection
-                    memoryId={String(mem.id)}
-                    memoryType={mem.preset ? "preset" : "submission"}
-                  />
-                )}
+                <span className="memory-list-arrow">&#8250;</span>
               </div>
             ))}
           </div>
         </div>
+      )}
+
+      {/* Memory Detail View */}
+      {selectedMemory && (
+        <MemoryDetail
+          memory={selectedMemory}
+          onBack={() => setSelectedMemory(null)}
+          onClose={() => { setSelectedMemory(null); setViewModal(null); }}
+          onEdit={(mem) => {
+            setEditingMemoryId(mem.id);
+            setEditFields({
+              title: mem.title,
+              description: mem.description || "",
+              date: mem.date,
+              category: mem.category,
+              url: mem.url || "",
+              image_url: mem.image || "",
+            });
+          }}
+          onDelete={(mem) => {
+            if (mem.isPrivate && user?.id === mem.userId) {
+              handleUserDelete(mem.id);
+            } else {
+              handleAdminDelete(mem.id);
+            }
+            setSelectedMemory(null);
+          }}
+          canEdit={
+            (isAdmin && !!selectedMemory.communitySubmission) ||
+            (!isAdmin && !!selectedMemory.isPrivate && user?.id === selectedMemory.userId)
+          }
+          onMemoryChanged={fetchApprovedSubmissions}
+        />
       )}
 
       {/* Info Modal */}

@@ -67,6 +67,14 @@ export interface CommentFlag {
   created_at: string;
 }
 
+export interface Reaction {
+  id: string;
+  memory_id: string;
+  memory_type: "preset" | "submission";
+  user_id: string;
+  created_at: string;
+}
+
 export interface FlaggedComment extends Comment {
   flags: {
     id: string;
