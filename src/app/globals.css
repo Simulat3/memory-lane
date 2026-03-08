@@ -1314,10 +1314,12 @@ footer {
 .reaction-btn {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     border: 1px solid #aca899;
-    border-radius: 14px;
+    border-radius: 50%;
     background: linear-gradient(180deg, #fff 0%, #f5f3ee 100%);
     cursor: pointer;
     transition: all 0.15s;
@@ -1345,12 +1347,14 @@ footer {
 }
 
 .reaction-label {
-    font-size: 0.7rem;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
     font-weight: bold;
     color: #003c74;
 }
 
 .reaction-count {
+    font-family: Tahoma, sans-serif;
     font-size: 0.75rem;
     font-weight: bold;
     color: #003c74;

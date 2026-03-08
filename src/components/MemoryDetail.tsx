@@ -134,16 +134,16 @@ export default function MemoryDetail({ memory, onBack, onClose, onEdit, onDelete
           {/* Reaction */}
           {!memory.isPrivate && (
             <div className="reaction-section">
+              <span className="reaction-label">Upvote:</span>
               <button
                 className={`reaction-btn${userReacted ? " reacted" : ""}`}
                 onClick={handleReaction}
                 disabled={!user || reacting}
-                title={user ? (userReacted ? "Remove reaction" : "React") : "Sign in to react"}
+                title={user ? (userReacted ? "Remove upvote" : "Upvote") : "Sign in to upvote"}
               >
                 <span className="reaction-emoji">&#128223;</span>
-                <span className="reaction-label">Upvote</span>
-                <span className="reaction-count">{reactionCount}</span>
               </button>
+              <span className="reaction-count">{reactionCount}</span>
             </div>
           )}
 
