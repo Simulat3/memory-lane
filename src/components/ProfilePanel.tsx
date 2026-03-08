@@ -22,7 +22,7 @@ interface ProfilePanelProps {
 
 export default function ProfilePanel({ open, onClose, onMemoriesChanged }: ProfilePanelProps) {
   const { user, profile, updateProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"public" | "private">("public");
+  const [activeTab, setActiveTab] = useState<"public" | "private" | "rejected">("public");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -157,9 +157,11 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged }: Profi
     }
   }
 
-  const filtered = submissions.filter((s) =>
-    activeTab === "public" ? s.is_public : !s.is_public
-  );
+  const filtered = submissions.filter((s) => {
+    if (activeTab === "public") return s.is_public && s.status !== "rejected";
+    if (activeTab === "private") return !s.is_public;
+    return s.status === "rejected";
+  });
 
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })
@@ -258,6 +260,14 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged }: Profi
           >
             &#128274; Private ({submissions.filter((s) => !s.is_public).length})
           </button>
+          {submissions.some((s) => s.status === "rejected") && (
+            <button
+              className={`profile-tab${activeTab === "rejected" ? " active" : ""}`}
+              onClick={() => setActiveTab("rejected")}
+            >
+              &#10060; Rejected ({submissions.filter((s) => s.status === "rejected").length})
+            </button>
+          )}
         </div>
 
         {/* Memories list */}
