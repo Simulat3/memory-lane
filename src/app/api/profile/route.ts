@@ -3,6 +3,66 @@ import { getSupabaseAdmin } from "../../../lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+export async function POST(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  const supabase = getSupabaseAdmin();
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const formData = await request.formData();
+  const file = formData.get("avatar") as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: "No file provided" }, { status: 400 });
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    return NextResponse.json({ error: "File must be under 2MB" }, { status: 400 });
+  }
+
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `avatars/${user.id}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { error: uploadError } = await supabase.storage
+    .from("submission-images")
+    .upload(path, buffer, {
+      upsert: true,
+      contentType: file.type,
+    });
+
+  if (uploadError) {
+    return NextResponse.json({ error: uploadError.message }, { status: 500 });
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from("submission-images")
+    .getPublicUrl(path);
+
+  const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+  const { data, error } = await supabase
+    .from("users")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", user.id)
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
 export async function PATCH(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (!authHeader) {

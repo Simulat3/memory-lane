@@ -85,25 +85,27 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged }: Profi
 
     setAvatarUploading(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `avatars/${user.id}.${ext}`;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-      const { error: uploadError } = await supabase.storage
-        .from("submission-images")
-        .upload(path, file, { upsert: true });
+      const formData = new FormData();
+      formData.append("avatar", file);
 
-      if (uploadError) {
-        alert("Upload failed: " + uploadError.message);
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert("Upload failed: " + (data.error || "Unknown error"));
         return;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("submission-images")
-        .getPublicUrl(path);
-
-      // Add cache-busting param
-      const url = `${publicUrl}?t=${Date.now()}`;
-      await updateProfile({ avatar_url: url });
+      const updatedProfile = await res.json();
+      // Update local profile state via context
+      await updateProfile({ avatar_url: updatedProfile.avatar_url });
     } catch {
       alert("Upload failed");
     } finally {
