@@ -201,32 +201,32 @@ export default function Home() {
     setCurrentYear(y);
   }
 
-  async function openDateView(month: number, day: number, memories: Memory[]) {
-    // If single entry, go straight to detail
-    if (memories.length === 1) {
-      setViewModal({ month, day, memories });
-      setSelectedMemory(memories[0]);
-    } else {
-      setViewModal({ month, day, memories });
-      // Fetch reaction counts for all memories in the list
-      const counts: Record<string, number> = {};
-      try {
-        await Promise.all(
-          memories.filter((m) => !m.isPrivate).map(async (mem) => {
-            const key = `${mem.id}`;
-            const type = mem.preset ? "preset" : "submission";
-            const res = await fetch(`/api/reactions?memory_id=${key}&memory_type=${type}`);
-            if (res.ok) {
-              const data = await res.json();
-              counts[key] = data.length;
-            }
-          })
-        );
-      } catch {
-        // ignore
-      }
-      setReactionCounts(counts);
+  async function fetchReactionCounts(memories: Memory[]) {
+    const counts: Record<string, number> = {};
+    try {
+      await Promise.all(
+        memories.filter((m) => !m.isPrivate).map(async (mem) => {
+          const key = `${mem.id}`;
+          const type = mem.preset ? "preset" : "submission";
+          const res = await fetch(`/api/reactions?memory_id=${key}&memory_type=${type}`);
+          if (res.ok) {
+            const data = await res.json();
+            counts[key] = data.length;
+          }
+        })
+      );
+    } catch {
+      // ignore
     }
+    setReactionCounts(counts);
+  }
+
+  async function openDateView(month: number, day: number, memories: Memory[]) {
+    setViewModal({ month, day, memories });
+    if (memories.length === 1) {
+      setSelectedMemory(memories[0]);
+    }
+    await fetchReactionCounts(memories);
   }
 
   function openSubmitWithDate(year: number, month: number, day: number) {
@@ -383,7 +383,7 @@ export default function Home() {
       {selectedMemory && (
         <MemoryDetail
           memory={selectedMemory}
-          onBack={() => setSelectedMemory(null)}
+          onBack={() => { setSelectedMemory(null); if (viewModal) fetchReactionCounts(viewModal.memories); }}
           onClose={() => { setSelectedMemory(null); setViewModal(null); }}
           onEdit={(mem) => {
             setEditingMemoryId(mem.id);
