@@ -353,7 +353,7 @@ export default function Home() {
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setViewModal(null); }}>
           <div className="modal">
             <h3>{MONTH_NAMES[viewModal.month]} {viewModal.day} <button className="modal-close-x" onClick={() => setViewModal(null)}>&#10005;</button></h3>
-            {viewModal.memories.map((mem) => (
+            {[...viewModal.memories].sort((a, b) => (reactionCounts[String(b.id)] || 0) - (reactionCounts[String(a.id)] || 0)).map((mem) => (
               <div key={mem.id} className="memory-list-item" onClick={() => setSelectedMemory(mem)}>
                 <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3" }}>
                   {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
@@ -364,9 +364,9 @@ export default function Home() {
                     <span className="memory-list-author">by {mem.submittedBy}</span>
                   )}
                 </div>
-                {!mem.isPrivate && (reactionCounts[String(mem.id)] || 0) > 0 && (
+                {!mem.isPrivate && (
                   <span className="memory-list-reactions">
-                    <span>&#128223;</span> {reactionCounts[String(mem.id)]}
+                    <span>&#128223;</span> {reactionCounts[String(mem.id)] || 0}
                   </span>
                 )}
                 {mem.isPrivate && (
