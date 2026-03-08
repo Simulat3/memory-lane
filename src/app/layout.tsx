@@ -4,7 +4,7 @@ import { AuthProvider } from "../context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Nostalgia Calendar",
-  description: "Brought to you by Y2K where nostalgia fuels the future",
+  description: "Yesterday's memories. Tomorrow's nostalgia.",
 };
 
 export default function RootLayout({
