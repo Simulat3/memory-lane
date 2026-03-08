@@ -1344,6 +1344,12 @@ footer {
     line-height: 1;
 }
 
+.reaction-label {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #003c74;
+}
+
 .reaction-count {
     font-size: 0.75rem;
     font-weight: bold;

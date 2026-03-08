@@ -141,6 +141,7 @@ export default function MemoryDetail({ memory, onBack, onClose, onEdit, onDelete
                 title={user ? (userReacted ? "Remove reaction" : "React") : "Sign in to react"}
               >
                 <span className="reaction-emoji">&#128223;</span>
+                <span className="reaction-label">Upvote</span>
                 <span className="reaction-count">{reactionCount}</span>
               </button>
             </div>
