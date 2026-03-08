@@ -5,6 +5,8 @@ import Image from "next/image";
 import { CULTURAL_MOMENTS } from "../data/cultural-moments";
 import AuthButton from "../components/AuthButton";
 import SubmitEventModal from "../components/SubmitEventModal";
+import ProfilePanel from "../components/ProfilePanel";
+import CommentsSection from "../components/CommentsSection";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
 import type { Category, Memory, Submission } from "../lib/types";
@@ -38,6 +40,7 @@ export default function Home() {
   const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
   const [infoModal, setInfoModal] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
   const [bootReady, setBootReady] = useState(false);
 
@@ -235,7 +238,7 @@ export default function Home() {
             <h1>Nostalgia Calendar</h1>
             <p>Nostalgia Fuels the Future</p>
           </div>
-          <AuthButton />
+          <AuthButton onProfileClick={() => setProfileOpen(true)} />
           <button className="auth-btn" onClick={() => setInfoModal(true)}>Info</button>
         </header>
 
@@ -393,6 +396,12 @@ export default function Home() {
                     )}
                   </>
                 )}
+                {!mem.isPrivate && (
+                  <CommentsSection
+                    memoryId={String(mem.id)}
+                    memoryType={mem.preset ? "preset" : "submission"}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -427,6 +436,13 @@ export default function Home() {
           defaultDate={submitDate}
         />
       )}
+
+      {/* Profile Panel */}
+      <ProfilePanel
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onMemoriesChanged={fetchApprovedSubmissions}
+      />
     </div>
   );
 }

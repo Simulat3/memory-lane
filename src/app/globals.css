@@ -1054,6 +1054,681 @@ footer {
 .btn-reject:hover { background: #cc0000; color: #fff; }
 .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Admin Tabs */
+.admin-tabs {
+    display: flex;
+    gap: 4px;
+}
+
+.admin-tab {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 5px 14px;
+    border: 1px solid #aca899;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #ece9d8 0%, #d6cfc3 100%);
+    color: #666;
+    cursor: pointer;
+    position: relative;
+}
+
+.admin-tab.active {
+    background: #fff;
+    color: #003c74;
+    border-color: #0054e3;
+}
+
+.admin-tab:hover:not(.active) {
+    background: linear-gradient(180deg, #f5f3ee 0%, #dfd8c8 100%);
+}
+
+.admin-tab-badge {
+    display: inline-block;
+    background: #cc0000;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: bold;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    text-align: center;
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Flagged Comment Card */
+.admin-card-flagged {
+    border-left-color: #cc0000 !important;
+}
+
+.admin-comment-context {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.admin-comment-type {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #666;
+    background: #f0f0f0;
+    padding: 1px 6px;
+    border-radius: 2px;
+}
+
+.admin-comment-id {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.65rem;
+    color: #999;
+}
+
+.admin-comment-content {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    color: #333;
+    padding: 8px;
+    background: #f9f8f5;
+    border-left: 3px solid #e6a800;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.admin-flags-list {
+    margin-top: 6px;
+}
+
+.admin-flags-title {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #cc0000;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.admin-flag-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 3px 0;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+}
+
+.admin-flag-user {
+    font-weight: bold;
+    color: #003c74;
+}
+
+.admin-flag-reason {
+    color: #333;
+    flex: 1;
+}
+
+.admin-flag-date {
+    color: #999;
+    font-size: 0.65rem;
+}
+
+/* ============================
+   Comments Section
+   ============================ */
+
+.comments-section {
+    margin-top: 10px;
+    border-top: 1px solid #aca899;
+    padding-top: 8px;
+}
+
+.comments-header {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #003c74;
+    margin-bottom: 6px;
+}
+
+.comments-loading,
+.comments-empty {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    color: #999;
+    padding: 6px 0;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    display: flex;
+    gap: 8px;
+    padding: 6px;
+    background: #f5f3ee;
+    border-radius: 3px;
+}
+
+.comment-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #e8f0fe 0%, #c0d0e8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #aca899;
+}
+
+.comment-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comment-avatar span {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #0054e3;
+}
+
+.comment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.comment-author {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #003c74;
+}
+
+.comment-time {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.6rem;
+    color: #999;
+}
+
+.comment-content {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    color: #333;
+    word-break: break-word;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 3px;
+}
+
+.comment-flag-btn,
+.comment-delete-btn {
+    background: none;
+    border: none;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.6rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.comment-flag-btn {
+    color: #999;
+}
+
+.comment-flag-btn:hover {
+    color: #e6a800;
+}
+
+.comment-delete-btn {
+    color: #999;
+}
+
+.comment-delete-btn:hover {
+    color: #cc0000;
+}
+
+.comment-flag-form {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.comment-flag-form input {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    border: 1px solid #aca899;
+    background: #fff;
+    width: 120px;
+}
+
+.comment-flag-form button {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border: 1px solid #808080;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+}
+
+.comment-flag-form button:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 100%);
+}
+
+.comment-input-area {
+    margin-top: 6px;
+}
+
+.comment-input-area textarea {
+    width: 100%;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    padding: 6px;
+    border: 2px inset #aca899;
+    background: #fff;
+    resize: vertical;
+    min-height: 40px;
+    max-height: 80px;
+    color: #000;
+}
+
+.comment-input-area textarea:focus {
+    outline: none;
+    border-color: #0054e3;
+}
+
+.comment-input-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.comment-char-count {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.6rem;
+    color: #999;
+}
+
+.comment-input-footer button {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 3px 12px;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 45%, #d6cfc3 100%);
+    border: 1px solid #003c74;
+    color: #003c74;
+    cursor: pointer;
+    border-radius: 3px;
+    box-shadow: 1px 1px 0 #fff inset, -1px -1px 0 #aca899 inset;
+}
+
+.comment-input-footer button:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
+}
+
+.comment-input-footer button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.comment-signin-prompt {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    color: #666;
+    text-align: center;
+    padding: 8px 0;
+    font-style: italic;
+}
+
+/* ============================
+   Profile Panel - XP Explorer
+   ============================ */
+
+.profile-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    justify-content: flex-end;
+}
+
+.profile-overlay.active { display: flex; }
+
+.profile-panel {
+    width: 420px;
+    max-width: 100%;
+    height: 100%;
+    background: #ece9d8;
+    border-left: 2px solid #0054e3;
+    box-shadow: -3px 0 12px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    animation: profileSlideIn 0.25s ease-out;
+}
+
+@keyframes profileSlideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.profile-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: linear-gradient(180deg, #0997ff 0%, #0053ee 10%, #0050ee 90%, #0046d5 100%);
+    font-family: 'Trebuchet MS', Tahoma, sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+}
+
+.profile-toolbar {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+    border-bottom: 1px solid #aca899;
+}
+
+.profile-toolbar-path {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    color: #003c74;
+    background: #fff;
+    border: 2px inset #aca899;
+    padding: 2px 8px;
+    flex: 1;
+}
+
+.profile-info {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid #aca899;
+    background: linear-gradient(180deg, #f5f3ee 0%, #ece9d8 100%);
+}
+
+.profile-avatar-section {
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border: 2px solid #0054e3;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: #fff;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Trebuchet MS', Tahoma, sans-serif;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0054e3;
+    background: linear-gradient(180deg, #e8f0fe 0%, #c0d0e8 100%);
+}
+
+.profile-avatar-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.6rem;
+    text-align: center;
+    padding: 2px 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.profile-avatar:hover .profile-avatar-overlay {
+    opacity: 1;
+}
+
+.profile-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-name-display h3 {
+    font-family: 'Trebuchet MS', Tahoma, sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #003c74;
+    margin: 0;
+}
+
+.profile-name-display button {
+    background: none;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0 2px;
+}
+
+.profile-name-display button:hover {
+    color: #0054e3;
+}
+
+.profile-name-edit {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.profile-name-edit input {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    border: 2px inset #aca899;
+    background: #fff;
+    flex: 1;
+}
+
+.profile-name-edit button {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border: 1px solid #808080;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+}
+
+.profile-name-edit button:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 100%);
+}
+
+.profile-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 6px;
+}
+
+.profile-meta span {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    color: #666;
+}
+
+/* Profile Tabs */
+.profile-tabs {
+    display: flex;
+    background: #ece9d8;
+    border-bottom: 2px solid #0054e3;
+    padding: 0 8px;
+}
+
+.profile-tab {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 6px 14px;
+    border: 1px solid #aca899;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #ece9d8 0%, #d6cfc3 100%);
+    color: #666;
+    cursor: pointer;
+    margin-right: 2px;
+    position: relative;
+    top: 2px;
+}
+
+.profile-tab.active {
+    background: #fff;
+    color: #003c74;
+    border-color: #0054e3;
+    border-bottom: 2px solid #fff;
+    z-index: 1;
+}
+
+.profile-tab:hover:not(.active) {
+    background: linear-gradient(180deg, #f5f3ee 0%, #dfd8c8 100%);
+}
+
+/* Memories List */
+.profile-memories {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    background: #fff;
+}
+
+.profile-empty {
+    text-align: center;
+    padding: 30px 15px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.profile-memory-item {
+    background: #fff;
+    border: 1px solid #aca899;
+    border-left: 4px solid #0054e3;
+    padding: 10px;
+    margin-bottom: 6px;
+}
+
+.profile-memory-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.profile-memory-title {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #003c74;
+    margin-bottom: 2px;
+}
+
+.profile-memory-desc {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    color: #333;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.profile-memory-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.profile-memory-date {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.65rem;
+    color: #999;
+}
+
+.profile-memory-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.profile-memory-actions button {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border: 1px solid #808080;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+}
+
+.profile-memory-actions button:hover {
+    background: linear-gradient(180deg, #fff 0%, #dfd8c8 100%);
+}
+
+.profile-delete-btn {
+    color: #cc0000 !important;
+    border-color: #cc0000 !important;
+}
+
+.profile-delete-btn:hover {
+    background: #cc0000 !important;
+    color: #fff !important;
+}
+
+.profile-memory-edit {
+    padding: 4px 0;
+}
+
 @media (max-width: 600px) {
     header h1 { font-size: 0.9rem; }
     .day { min-height: 50px; padding: 3px; }
@@ -1061,4 +1736,8 @@ footer {
     .calendar-nav h2 { font-size: 0.85rem; }
     .auth-username { display: none; }
     .action-buttons { flex-direction: column; }
+    .profile-panel { width: 100%; }
+    .profile-info { flex-direction: column; align-items: center; text-align: center; }
+    .profile-name-display { justify-content: center; }
+    .profile-meta { align-items: center; }
 }

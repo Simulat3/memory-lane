@@ -8,6 +8,7 @@ create table public.users (
   id uuid references auth.users on delete cascade primary key,
   email text,
   display_name text,
+  avatar_url text default '',
   is_admin boolean default false,
   created_at timestamptz default now()
 );
@@ -76,16 +77,68 @@ create policy "Authenticated users can submit"
   on public.submissions for insert
   with check (auth.uid() = user_id);
 
--- 5. Indexes for performance
+-- 5. Comments table
+create table public.comments (
+  id uuid default gen_random_uuid() primary key,
+  memory_id text not null,
+  memory_type text not null check (memory_type in ('preset', 'submission')),
+  user_id uuid references public.users(id) on delete cascade not null,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+-- 6. Comment flags table
+create table public.comment_flags (
+  id uuid default gen_random_uuid() primary key,
+  comment_id uuid references public.comments(id) on delete cascade not null,
+  user_id uuid references public.users(id) on delete cascade not null,
+  reason text default 'Inappropriate content',
+  created_at timestamptz default now(),
+  unique(comment_id, user_id)
+);
+
+alter table public.comments enable row level security;
+alter table public.comment_flags enable row level security;
+
+-- Comments: anyone can read
+create policy "Comments are publicly readable"
+  on public.comments for select
+  using (true);
+
+-- Comments: authenticated users can insert
+create policy "Authenticated users can comment"
+  on public.comments for insert
+  with check (auth.uid() = user_id);
+
+-- Comments: users can delete their own
+create policy "Users can delete own comments"
+  on public.comments for delete
+  using (auth.uid() = user_id);
+
+-- Comment flags: anyone can read (for admin queries via service role)
+create policy "Comment flags are readable"
+  on public.comment_flags for select
+  using (true);
+
+-- Comment flags: authenticated users can insert
+create policy "Authenticated users can flag"
+  on public.comment_flags for insert
+  with check (auth.uid() = user_id);
+
+-- 7. Indexes for performance
 create index idx_submissions_status on public.submissions(status);
 create index idx_submissions_user_id on public.submissions(user_id);
 create index idx_submissions_date on public.submissions(date);
+create index idx_comments_memory on public.comments(memory_id, memory_type);
+create index idx_comments_user_id on public.comments(user_id);
+create index idx_comment_flags_comment_id on public.comment_flags(comment_id);
 
 -- ============================================
 -- Migration for existing deployments:
 -- ============================================
 -- ALTER TABLE public.submissions ADD COLUMN is_public boolean DEFAULT true;
 -- ALTER TABLE public.submissions ADD COLUMN image_url text DEFAULT '';
+-- ALTER TABLE public.users ADD COLUMN avatar_url text DEFAULT '';
 --
 -- DROP POLICY "Approved submissions are publicly readable" ON public.submissions;
 -- CREATE POLICY "Approved submissions are publicly readable"

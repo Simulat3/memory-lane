@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
-export default function AuthButton() {
+interface AuthButtonProps {
+  onProfileClick?: () => void;
+}
+
+export default function AuthButton({ onProfileClick }: AuthButtonProps) {
   const { user, profile, loading, signIn, signUp, signOut } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -91,7 +95,20 @@ export default function AuthButton() {
 
   return (
     <div className="auth-user">
-      <span className="auth-username">{profile?.display_name || user.email}</span>
+      {profile?.avatar_url && (
+        <img
+          src={profile.avatar_url}
+          alt=""
+          width={24}
+          height={24}
+          className="auth-avatar"
+          onClick={onProfileClick}
+          style={{ cursor: "pointer" }}
+        />
+      )}
+      <span className="auth-username" onClick={onProfileClick} style={{ cursor: "pointer" }}>
+        {profile?.display_name || user.email}
+      </span>
       <button className="auth-btn" onClick={signOut}>
         Sign Out
       </button>

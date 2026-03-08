@@ -39,6 +39,39 @@ export interface UserProfile {
   id: string;
   email: string;
   display_name: string;
+  avatar_url: string;
   is_admin: boolean;
   created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  memory_id: string;
+  memory_type: "preset" | "submission";
+  user_id: string;
+  content: string;
+  created_at: string;
+  users?: {
+    display_name: string;
+    email: string;
+    avatar_url: string;
+  };
+  flag_count?: number;
+}
+
+export interface CommentFlag {
+  id: string;
+  comment_id: string;
+  user_id: string;
+  reason: string;
+  created_at: string;
+}
+
+export interface FlaggedComment extends Comment {
+  flags: {
+    id: string;
+    reason: string;
+    created_at: string;
+    users?: { display_name: string; email: string };
+  }[];
 }
