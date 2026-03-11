@@ -318,13 +318,17 @@ header p {
 
 .day.has-memory .day-number { color: #2d6a2d; }
 
+.memory-dots {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    margin: 4px auto 0;
+}
 .memory-dot {
     width: 8px;
     height: 8px;
     background: #5cb85c;
     border-radius: 50%;
-    margin: 4px auto 0;
-    border: 1px solid #3d8b3d;
 }
 
 .memory-preview {

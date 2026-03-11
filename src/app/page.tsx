@@ -330,7 +330,11 @@ export default function Home() {
                     <div className="day-number">{d}</div>
                     {hasMemory && (
                       <>
-                        <div className="memory-dot" style={{ backgroundColor: CATEGORIES.find(c => c.value === dayMemories[0].category)?.color || "#5cb85c" }} />
+                        <div className="memory-dots">
+                          {[...new Set(dayMemories.map(m => m.category))].map((cat) => (
+                            <div key={cat} className="memory-dot" style={{ backgroundColor: CATEGORIES.find(c => c.value === cat)?.color || "#5cb85c" }} />
+                          ))}
+                        </div>
                         <div className="memory-preview">{dayMemories.length > 1 ? `${dayMemories.length} entries` : dayMemories[0].title}</div>
                       </>
                     )}
