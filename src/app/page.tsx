@@ -58,6 +58,17 @@ export default function Home() {
     }
   }, []);
 
+  const [wasLoggedOut, setWasLoggedOut] = useState(true);
+
+  useEffect(() => {
+    if (!user) setWasLoggedOut(true);
+    else if (wasLoggedOut && showLogin && !showStartup) {
+      sessionStorage.setItem("nr-booted", "1");
+      setShowLogin(false);
+      setWasLoggedOut(false);
+    }
+  }, [user, wasLoggedOut, showLogin, showStartup]);
+
   useEffect(() => {
     if (showStartup) {
       const timer = setTimeout(() => setBootReady(true), 4000);
