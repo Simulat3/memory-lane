@@ -26,6 +26,7 @@ export default function XPLoginScreen({ onEnter, loggedInProfile }: XPLoginScree
     setSubmitting(true);
     const err = await signIn(email, password);
     if (err) setError(err);
+    else onEnter();
     setSubmitting(false);
   }
 
