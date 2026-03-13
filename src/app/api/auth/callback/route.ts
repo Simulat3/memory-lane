@@ -13,5 +13,5 @@ export async function GET(request: NextRequest) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.redirect(origin);
+  return NextResponse.redirect(`${origin}?verified=true`);
 }

@@ -46,6 +46,7 @@ export default function Home() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
   const [bootReady, setBootReady] = useState(false);
+  const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
 
   useEffect(() => {
     if (showStartup) {
@@ -53,6 +54,16 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, [showStartup]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verified") === "true") {
+      setShowVerifiedBanner(true);
+      window.history.replaceState({}, "", window.location.pathname);
+      const timer = setTimeout(() => setShowVerifiedBanner(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const fetchApprovedSubmissions = useCallback(async () => {
     try {
@@ -262,6 +273,11 @@ export default function Home() {
 
   return (
     <div className="xp-desktop">
+      {showVerifiedBanner && (
+        <div className="verified-banner">
+          Email verified! You&apos;re all set — welcome to the timeline.
+        </div>
+      )}
       <div className="container">
         <header>
           <Image src="/logo.png" alt="Y2K Logo" width={40} height={40} />

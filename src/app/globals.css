@@ -1,5 +1,29 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Verified Banner */
+.verified-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: #006400;
+    color: #fff;
+    text-align: center;
+    padding: 10px 16px;
+    font-family: "Tahoma", sans-serif;
+    font-size: 14px;
+    animation: slideBannerDown 0.3s ease-out, fadeBannerOut 0.5s ease 4.5s forwards;
+}
+@keyframes slideBannerDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+@keyframes fadeBannerOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
 /* XP Boot Screen */
 .xp-boot {
     display: flex;
