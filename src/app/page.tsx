@@ -8,6 +8,7 @@ import AuthButton from "../components/AuthButton";
 import SubmitEventModal from "../components/SubmitEventModal";
 import ProfilePanel from "../components/ProfilePanel";
 import MemoryDetail from "../components/MemoryDetail";
+import XPLoginScreen from "../components/XPLoginScreen";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
 import type { Category, Memory, Submission } from "../lib/types";
@@ -27,7 +28,7 @@ const MONTH_NAMES = [
 ];
 
 export default function Home() {
-  const { user, isAdmin } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(0);
   const [currentYear, setCurrentYear] = useState(2000);
   const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
@@ -42,11 +43,20 @@ export default function Home() {
   const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
+  const [showFutureError, setShowFutureError] = useState(false);
   const [infoModal, setInfoModal] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
+  const [showLogin, setShowLogin] = useState(true);
   const [bootReady, setBootReady] = useState(false);
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("nr-booted")) {
+      setShowStartup(false);
+      setShowLogin(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (showStartup) {
@@ -62,6 +72,7 @@ export default function Home() {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
+
 
   const fetchApprovedSubmissions = useCallback(async () => {
     try {
@@ -245,6 +256,32 @@ export default function Home() {
     setSubmitModal(true);
   }
 
+  function goToPast() {
+    setCurrentMonth(0);
+    setCurrentYear(2000);
+  }
+
+  function goToPresent() {
+    const now = new Date();
+    setCurrentMonth(now.getMonth());
+    setCurrentYear(now.getFullYear());
+  }
+
+  function goToFuture() {
+    const now = new Date();
+    const futureMemory = allMemories
+      .filter(m => new Date(m.date) > now)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+
+    if (futureMemory) {
+      const d = new Date(futureMemory.date);
+      setCurrentMonth(d.getMonth());
+      setCurrentYear(d.getFullYear());
+    } else {
+      setShowFutureError(true);
+    }
+  }
+
   const firstDay = new Date(currentYear, currentMonth, 1).getDay();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const today = new Date();
@@ -267,6 +304,10 @@ export default function Home() {
         {bootReady && <div className="xp-boot-click">Click anywhere to start</div>}
       </div>
     );
+  }
+
+  if (showLogin) {
+    return <XPLoginScreen onEnter={() => { sessionStorage.setItem("nr-booted", "1"); setShowLogin(false); }} loggedInProfile={profile} />;
   }
 
   return (
@@ -353,13 +394,19 @@ export default function Home() {
                             <div key={cat} className="memory-dot" style={{ backgroundColor: CATEGORIES.find(c => c.value === cat)?.color || "#5cb85c" }} />
                           ))}
                         </div>
-                        <div className="memory-preview">{dayMemories.length > 1 ? `${dayMemories.length} entries` : dayMemories[0].title}</div>
+                        {dayMemories.length === 1 && <div className="memory-preview">{dayMemories[0].title}</div>}
                       </>
                     )}
                   </div>
                 );
               })}
             </div>
+          </div>
+
+          <div className="time-nav-buttons">
+            <button className="time-nav-btn" onClick={goToPast}>Past</button>
+            <button className="time-nav-btn" onClick={goToPresent}>Present</button>
+            <button className="time-nav-btn" onClick={goToFuture}>Future</button>
           </div>
 
           <div className="action-buttons">
@@ -369,6 +416,28 @@ export default function Home() {
 
         <footer><span>Created by @JSimulat3</span><span>Revive Culture</span></footer>
       </div>
+
+      {/* XP Error Dialog — Future */}
+      {showFutureError && (
+        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setShowFutureError(false); }}>
+          <div className="xp-error-dialog">
+            <div className="xp-error-titlebar">
+              <span>C:\Restricted</span>
+              <button className="xp-error-close" onClick={() => setShowFutureError(false)}>&#10005;</button>
+            </div>
+            <div className="xp-error-body">
+              <div className="xp-error-icon">&#9888;</div>
+              <div className="xp-error-text">
+                <p><strong>C:\Restricted</strong> is not accessible.</p>
+                <p className="xp-error-subtext">The future is unwritten — submit the first entry.</p>
+              </div>
+            </div>
+            <div className="xp-error-actions">
+              <button className="xp-error-btn" onClick={() => setShowFutureError(false)}>OK</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* View Modal — List View */}
       {viewModal && !selectedMemory && (

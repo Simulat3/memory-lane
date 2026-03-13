@@ -129,6 +129,223 @@
     50% { opacity: 0.3; }
 }
 
+/* XP Login Screen */
+.xp-login {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #0050a0 0%, #3a7bd5 20%, #5a9ee0 50%, #3a7bd5 80%, #0050a0 100%);
+    font-family: Tahoma, sans-serif;
+}
+
+.xp-login-top-bar {
+    background: linear-gradient(180deg, #0058a8 0%, #3a82d9 50%, #0058a8 100%);
+    padding: 8px 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-bottom: 2px solid #003d7a;
+}
+
+.xp-login-bottom-bar {
+    background: linear-gradient(180deg, #0058a8 0%, #3a82d9 50%, #0058a8 100%);
+    padding: 8px 0;
+    color: #fff;
+    font-size: 0.75rem;
+    border-top: 2px solid #003d7a;
+    margin-top: auto;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.marquee-inner {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 40s linear infinite;
+    will-change: transform;
+}
+
+@keyframes marquee {
+    0% { transform: translateX(-25%); }
+    100% { transform: translateX(0); }
+}
+
+.xp-login-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px 20px;
+}
+
+.xp-login-left {
+    text-align: center;
+}
+
+.xp-login-left h1 {
+    font-family: 'Trebuchet MS', Tahoma, sans-serif;
+    font-size: 1.6rem;
+    color: #fff;
+    margin-top: 12px;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.xp-login-divider {
+    width: 2px;
+    height: 200px;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.5), transparent);
+}
+
+.xp-login-accounts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 240px;
+}
+
+.xp-account-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+}
+
+.xp-account-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.xp-account-avatar {
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #fff;
+    flex-shrink: 0;
+}
+
+.xp-account-name {
+    font-family: Tahoma, sans-serif;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* XP Login Form */
+.xp-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 260px;
+}
+
+.xp-login-form h3 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.xp-login-input {
+    padding: 8px 10px;
+    border: 1px solid #7f9db9;
+    border-radius: 3px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    background: #fff;
+}
+
+.xp-login-input:focus {
+    border-color: #3a7bd5;
+    box-shadow: 0 0 3px rgba(58, 123, 213, 0.5);
+}
+
+.xp-login-error {
+    color: #ffcccc;
+    font-size: 0.8rem;
+    background: rgba(180, 0, 0, 0.3);
+    padding: 6px 10px;
+    border-radius: 3px;
+}
+
+.xp-login-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.xp-login-btn {
+    padding: 6px 16px;
+    border: 1px solid #003d7a;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #fff 0%, #e8e8e8 45%, #d2d2d2 100%);
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #000;
+}
+
+.xp-login-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #eee 45%, #ddd 100%);
+}
+
+.xp-login-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.xp-login-btn-secondary {
+    background: linear-gradient(180deg, #f0f0f0 0%, #d8d8d8 45%, #c0c0c0 100%);
+}
+
+.xp-login-toggle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+.xp-login-link {
+    background: none;
+    border: none;
+    color: #fff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: Tahoma, sans-serif;
+    padding: 0;
+}
+
+.xp-login-success {
+    color: #fff;
+    text-align: center;
+}
+
+.xp-login-success p {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+/* Mobile adjustments for login */
+@media (max-width: 600px) {
+    .xp-login-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .xp-login-divider {
+        width: 200px;
+        height: 2px;
+    }
+}
+
 .xp-desktop {
     background-color: #3a6ea5;
     font-family: 'Tahoma', 'Segoe UI', sans-serif;
@@ -361,8 +578,8 @@ header p {
 .memory-dots {
     display: flex;
     gap: 3px;
-    justify-content: center;
-    margin: 4px auto 0;
+    justify-content: flex-start;
+    margin: 4px 0 0 4px;
 }
 .memory-dot {
     width: 8px;
@@ -862,6 +1079,121 @@ footer {
 }
 
 /* Action Buttons Row */
+/* Time Nav Buttons */
+.time-nav-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 12px auto 4px;
+}
+
+.time-nav-btn {
+    padding: 4px 16px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    border: 1px solid #888;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #fff 0%, #e8e8e8 45%, #d2d2d2 100%);
+    cursor: pointer;
+    color: #000;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.time-nav-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #eee 45%, #ddd 100%);
+}
+
+.time-nav-btn:active {
+    background: linear-gradient(180deg, #d2d2d2 0%, #e8e8e8 100%);
+}
+
+/* XP Error Dialog */
+.xp-error-dialog {
+    width: 380px;
+    max-width: 90vw;
+    background: #ece9d8;
+    border: 2px solid #0054e3;
+    border-radius: 8px 8px 4px 4px;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.xp-error-titlebar {
+    background: linear-gradient(180deg, #0a58ca, #3a7ee8, #0a58ca);
+    color: #fff;
+    padding: 4px 8px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.xp-error-close {
+    background: linear-gradient(180deg, #e08080, #c05050);
+    border: 1px solid #993333;
+    color: #fff;
+    border-radius: 3px;
+    width: 20px;
+    height: 20px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.xp-error-close:hover {
+    background: linear-gradient(180deg, #f09090, #d06060);
+}
+
+.xp-error-body {
+    display: flex;
+    gap: 14px;
+    padding: 20px 16px 12px;
+    align-items: flex-start;
+}
+
+.xp-error-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.xp-error-text {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    color: #000;
+}
+
+.xp-error-subtext {
+    margin-top: 8px;
+    color: #555;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.xp-error-actions {
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px 14px;
+}
+
+.xp-error-btn {
+    padding: 4px 28px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    border: 1px solid #888;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #fff 0%, #e8e8e8 45%, #d2d2d2 100%);
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.xp-error-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #eee 45%, #ddd 100%);
+}
+
 .action-buttons {
     display: flex;
     gap: 8px;

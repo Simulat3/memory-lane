@@ -42,7 +42,7 @@ const DEV_PROFILE: UserProfile = {
   id: "dev-admin-001",
   email: "admin@dev.local",
   display_name: "JSimulat3",
-  avatar_url: "",
+  avatar_url: "/logo.png",
   is_admin: true,
   created_at: "2025-01-01T00:00:00Z",
 };
