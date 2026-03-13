@@ -313,10 +313,22 @@ export default function Home() {
   return (
     <div className="xp-desktop">
       {showVerifiedBanner && (
-        <div className="verified-overlay" onClick={() => setShowVerifiedBanner(false)}>
-          <div className="verified-card">
-            <h2>Verified</h2>
-            <p className="verified-cta">click to rewind</p>
+        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setShowVerifiedBanner(false); }}>
+          <div className="xp-error-dialog">
+            <div className="xp-error-titlebar">
+              <span>C:\Verification Complete</span>
+              <button className="xp-error-close" onClick={() => setShowVerifiedBanner(false)}>&#10005;</button>
+            </div>
+            <div className="xp-error-body">
+              <div className="xp-error-icon">&#127760;</div>
+              <div className="xp-error-text">
+                <p><strong>Email verified successfully.</strong></p>
+                <p className="xp-error-subtext">Welcome to the Renaissance — click OK to rewind.</p>
+              </div>
+            </div>
+            <div className="xp-error-actions">
+              <button className="xp-error-btn" onClick={() => setShowVerifiedBanner(false)}>OK</button>
+            </div>
           </div>
         </div>
       )}
