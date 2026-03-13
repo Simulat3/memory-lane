@@ -60,8 +60,6 @@ export default function Home() {
     if (params.get("verified") === "true") {
       setShowVerifiedBanner(true);
       window.history.replaceState({}, "", window.location.pathname);
-      const timer = setTimeout(() => setShowVerifiedBanner(false), 5000);
-      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -274,8 +272,11 @@ export default function Home() {
   return (
     <div className="xp-desktop">
       {showVerifiedBanner && (
-        <div className="verified-banner">
-          Email verified! You&apos;re all set — welcome to the timeline.
+        <div className="verified-overlay" onClick={() => setShowVerifiedBanner(false)}>
+          <div className="verified-card">
+            <h2>Verified</h2>
+            <p className="verified-cta">click to rewind</p>
+          </div>
         </div>
       )}
       <div className="container">
