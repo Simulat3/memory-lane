@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { CULTURAL_MOMENTS } from "../data/cultural-moments";
+import { BONUS_MEMORIES } from "../data/bonus-memories";
 import AuthButton from "../components/AuthButton";
 import SubmitEventModal from "../components/SubmitEventModal";
 import ProfilePanel from "../components/ProfilePanel";
@@ -180,7 +181,7 @@ export default function Home() {
     }
   }
 
-  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...communityMemories];
+  const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...BONUS_MEMORIES, ...communityMemories];
 
   function getMemoriesForDate(year: number, month: number, day: number): Memory[] {
     const y = String(year);
