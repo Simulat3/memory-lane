@@ -7,10 +7,11 @@ import type { UserProfile } from "../lib/types";
 
 interface XPLoginScreenProps {
   onEnter: () => void;
+  onSignIn?: () => void;
   loggedInProfile?: UserProfile | null;
 }
 
-export default function XPLoginScreen({ onEnter, loggedInProfile }: XPLoginScreenProps) {
+export default function XPLoginScreen({ onEnter, onSignIn, loggedInProfile }: XPLoginScreenProps) {
   const { signIn, signUp } = useAuth();
   const [showSignInForm, setShowSignInForm] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -26,7 +27,7 @@ export default function XPLoginScreen({ onEnter, loggedInProfile }: XPLoginScree
     setSubmitting(true);
     const err = await signIn(email, password);
     if (err) setError(err);
-    else onEnter();
+    else { onSignIn?.(); }
     setSubmitting(false);
   }
 

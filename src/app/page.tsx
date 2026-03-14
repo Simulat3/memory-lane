@@ -58,16 +58,15 @@ export default function Home() {
     }
   }, []);
 
-  const [wasLoggedOut, setWasLoggedOut] = useState(true);
+  const [signedInThisSession, setSignedInThisSession] = useState(false);
 
   useEffect(() => {
-    if (!user) setWasLoggedOut(true);
-    else if (wasLoggedOut && showLogin && !showStartup) {
+    if (signedInThisSession && user && showLogin && !showStartup) {
       sessionStorage.setItem("nr-booted", "1");
       setShowLogin(false);
-      setWasLoggedOut(false);
+      setSignedInThisSession(false);
     }
-  }, [user, wasLoggedOut, showLogin, showStartup]);
+  }, [user, signedInThisSession, showLogin, showStartup]);
 
   useEffect(() => {
     if (showStartup) {
@@ -318,7 +317,7 @@ export default function Home() {
   }
 
   if (showLogin) {
-    return <XPLoginScreen onEnter={() => { sessionStorage.setItem("nr-booted", "1"); setShowLogin(false); }} loggedInProfile={profile} />;
+    return <XPLoginScreen onEnter={() => { sessionStorage.setItem("nr-booted", "1"); setShowLogin(false); }} onSignIn={() => setSignedInThisSession(true)} loggedInProfile={profile} />;
   }
 
   return (
