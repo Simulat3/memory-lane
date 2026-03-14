@@ -68,6 +68,23 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Create notification for approval/rejection
+  if (status === "approved" || status === "rejected") {
+    const message = status === "approved"
+      ? `Your memory "${data.title}" has been approved and is now live!`
+      : `Your memory "${data.title}" was not approved.`;
+
+    await getSupabaseAdmin()
+      .from("notifications")
+      .insert({
+        user_id: data.user_id,
+        type: `submission_${status}`,
+        submission_id: id,
+        actor_id: user.id,
+        message,
+      });
+  }
+
   return NextResponse.json(data);
 }
 

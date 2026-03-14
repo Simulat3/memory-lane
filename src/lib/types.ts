@@ -75,6 +75,17 @@ export interface Reaction {
   created_at: string;
 }
 
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: "submission_approved" | "submission_rejected" | "upvote";
+  submission_id: string | null;
+  actor_id: string | null;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
 export interface FlaggedComment extends Comment {
   flags: {
     id: string;

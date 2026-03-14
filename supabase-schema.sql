@@ -169,3 +169,20 @@ create index idx_reactions_memory on public.reactions(memory_id, memory_type);
 -- CREATE POLICY "Approved submissions are publicly readable"
 --   ON public.submissions FOR SELECT
 --   USING (status = 'approved' AND is_public = true);
+
+-- ── Notifications ──
+-- create table public.notifications (
+--   id uuid default gen_random_uuid() primary key,
+--   user_id uuid references public.users(id) on delete cascade not null,
+--   type text not null check (type in ('submission_approved', 'submission_rejected', 'upvote')),
+--   submission_id uuid references public.submissions(id) on delete cascade,
+--   actor_id uuid references public.users(id) on delete set null,
+--   message text not null,
+--   read boolean default false,
+--   created_at timestamptz default now()
+-- );
+-- alter table public.notifications enable row level security;
+-- create policy "Users can read own notifications" on public.notifications for select using (auth.uid() = user_id);
+-- create policy "Users can update own notifications" on public.notifications for update using (auth.uid() = user_id);
+-- create index idx_notifications_user_id on public.notifications(user_id);
+-- create index idx_notifications_user_unread on public.notifications(user_id, read) where read = false;

@@ -82,5 +82,33 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Create upvote notification (only for submissions, not presets, and not self-upvotes)
+  if (memory_type === "submission") {
+    const { data: submission } = await supabase
+      .from("submissions")
+      .select("user_id, title")
+      .eq("id", memory_id)
+      .single();
+
+    if (submission && submission.user_id !== user.id) {
+      const { data: actor } = await supabase
+        .from("users")
+        .select("display_name")
+        .eq("id", user.id)
+        .single();
+
+      const actorName = actor?.display_name || "Someone";
+      await supabase
+        .from("notifications")
+        .insert({
+          user_id: submission.user_id,
+          type: "upvote",
+          submission_id: memory_id,
+          actor_id: user.id,
+          message: `${actorName} liked your memory "${submission.title}"`,
+        });
+    }
+  }
+
   return NextResponse.json({ action: "added", reaction: data }, { status: 201 });
 }

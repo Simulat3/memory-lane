@@ -5,9 +5,10 @@ import { useAuth } from "../context/AuthContext";
 
 interface AuthButtonProps {
   onProfileClick?: () => void;
+  unreadCount?: number;
 }
 
-export default function AuthButton({ onProfileClick }: AuthButtonProps) {
+export default function AuthButton({ onProfileClick, unreadCount = 0 }: AuthButtonProps) {
   const { user, profile, loading, signIn, signUp, signOut } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -106,8 +107,9 @@ export default function AuthButton({ onProfileClick }: AuthButtonProps) {
           style={{ cursor: "pointer" }}
         />
       )}
-      <span className="auth-username" onClick={onProfileClick} style={{ cursor: "pointer" }}>
+      <span className="auth-username" onClick={onProfileClick} style={{ cursor: "pointer", position: "relative" }}>
         {profile?.display_name || user.email}
+        {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
       </span>
       <button className="auth-btn" onClick={signOut}>
         Sign Out

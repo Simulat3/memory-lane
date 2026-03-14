@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
-import type { Category, Submission } from "../lib/types";
+import type { Category, Submission, Notification } from "../lib/types";
 
 const CATEGORIES: { value: Category; label: string; color: string }[] = [
   { value: "key-event", label: "Key Event", color: "#cc0000" },
@@ -18,11 +18,13 @@ interface ProfilePanelProps {
   open: boolean;
   onClose: () => void;
   onMemoriesChanged: () => void;
+  notifications?: Notification[];
+  onNotificationsRead?: () => void;
 }
 
-export default function ProfilePanel({ open, onClose, onMemoriesChanged }: ProfilePanelProps) {
+export default function ProfilePanel({ open, onClose, onMemoriesChanged, notifications = [], onNotificationsRead }: ProfilePanelProps) {
   const { user, profile, updateProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"public" | "private" | "rejected">("public");
+  const [activeTab, setActiveTab] = useState<"public" | "private" | "rejected" | "notifications">("public");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -163,6 +165,31 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged }: Profi
     return s.status === "rejected";
   });
 
+  async function handleMarkAllRead() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await fetch("/api/notifications/read", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ all: true }),
+    });
+    onNotificationsRead?.();
+  }
+
+  function timeAgo(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
+
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })
     : "";
@@ -268,11 +295,40 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged }: Profi
               &#10060; Rejected ({submissions.filter((s) => s.status === "rejected").length})
             </button>
           )}
+          <button
+            className={`profile-tab${activeTab === "notifications" ? " active" : ""}`}
+            onClick={() => setActiveTab("notifications")}
+          >
+            &#128276; Notifications {notifications.filter((n) => !n.read).length > 0 && (
+              <span className="notif-tab-badge">{notifications.filter((n) => !n.read).length}</span>
+            )}
+          </button>
         </div>
 
-        {/* Memories list */}
+        {/* Memories / Notifications list */}
         <div className="profile-memories">
-          {loading ? (
+          {activeTab === "notifications" ? (
+            notifications.length === 0 ? (
+              <div className="profile-empty">No notifications yet.</div>
+            ) : (
+              <>
+                {notifications.some((n) => !n.read) && (
+                  <button className="notif-mark-all" onClick={handleMarkAllRead}>Mark all as read</button>
+                )}
+                {notifications.map((n) => (
+                  <div key={n.id} className={`notif-item${n.read ? "" : " notif-unread"}`}>
+                    <span className="notif-icon">
+                      {n.type === "submission_approved" ? "\u2705" : n.type === "submission_rejected" ? "\u274C" : "\uD83D\uDCDF"}
+                    </span>
+                    <div className="notif-content">
+                      <p className="notif-message">{n.message}</p>
+                      <span className="notif-time">{timeAgo(n.created_at)}</span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )
+          ) : loading ? (
             <div className="profile-empty">Loading...</div>
           ) : filtered.length === 0 ? (
             <div className="profile-empty">

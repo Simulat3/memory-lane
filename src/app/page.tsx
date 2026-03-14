@@ -11,7 +11,7 @@ import MemoryDetail from "../components/MemoryDetail";
 import XPLoginScreen from "../components/XPLoginScreen";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
-import type { Category, Memory, Submission } from "../lib/types";
+import type { Category, Memory, Submission, Notification } from "../lib/types";
 
 const CATEGORIES: { value: Category; label: string; color: string }[] = [
   { value: "key-event", label: "Key Event", color: "#cc0000" },
@@ -43,6 +43,8 @@ export default function Home() {
   const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [showFutureError, setShowFutureError] = useState(false);
   const [infoModal, setInfoModal] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -83,6 +85,28 @@ export default function Home() {
     }
   }, []);
 
+
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/notifications", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (res.ok) {
+        const data: Notification[] = await res.json();
+        setNotifications(data);
+        setUnreadCount(data.filter((n) => !n.read).length);
+      }
+    } catch { /* ignore */ }
+  }, [user]);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   const fetchApprovedSubmissions = useCallback(async () => {
     try {
@@ -349,7 +373,7 @@ export default function Home() {
             <h1>Nostalgia Calendar</h1>
             <p>Nostalgia Fuels the Future</p>
           </div>
-          <AuthButton onProfileClick={() => setProfileOpen(true)} />
+          <AuthButton onProfileClick={() => setProfileOpen(true)} unreadCount={unreadCount} />
           <button className="auth-btn" onClick={() => setInfoModal(true)}>Info</button>
         </header>
 
@@ -559,6 +583,8 @@ export default function Home() {
         open={profileOpen}
         onClose={() => setProfileOpen(false)}
         onMemoriesChanged={fetchApprovedSubmissions}
+        notifications={notifications}
+        onNotificationsRead={fetchNotifications}
       />
     </div>
   );

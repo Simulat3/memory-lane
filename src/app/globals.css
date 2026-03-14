@@ -2173,6 +2173,101 @@ footer {
     color: #666;
 }
 
+/* Notification badge */
+.notif-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #cc0000;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: bold;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-family: Tahoma, sans-serif;
+}
+
+.notif-tab-badge {
+    background: #cc0000;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: bold;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    margin-left: 4px;
+}
+
+.notif-mark-all {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 6px;
+    background: linear-gradient(180deg, #fff 0%, #e8e8e8 45%, #d2d2d2 100%);
+    border: 1px solid #888;
+    border-radius: 3px;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: #000;
+}
+
+.notif-mark-all:hover {
+    background: linear-gradient(180deg, #fff 0%, #eee 45%, #ddd 100%);
+}
+
+.notif-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    margin-bottom: 4px;
+    border: 1px solid #ddd;
+    border-left: 4px solid #ccc;
+    background: #f8f8f8;
+    border-radius: 2px;
+}
+
+.notif-unread {
+    background: #fff;
+    border-left-color: #0054e3;
+}
+
+.notif-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-message {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    color: #000;
+    margin: 0;
+    word-wrap: break-word;
+}
+
+.notif-time {
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 4px;
+    display: block;
+}
+
 .profile-memory-item {
     background: #fff;
     border: 1px solid #aca899;
