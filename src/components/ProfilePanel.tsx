@@ -279,7 +279,7 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
             className={`profile-tab${activeTab === "public" ? " active" : ""}`}
             onClick={() => setActiveTab("public")}
           >
-            &#127758; Public ({submissions.filter((s) => s.is_public).length})
+            &#127758; Public ({submissions.filter((s) => s.is_public && s.status !== "rejected").length})
           </button>
           <button
             className={`profile-tab${activeTab === "private" ? " active" : ""}`}
