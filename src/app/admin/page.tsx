@@ -8,8 +8,9 @@ import type { Submission, FlaggedComment } from "../../lib/types";
 
 export default function AdminPage() {
   const { user, profile, isAdmin, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"submissions" | "comments">("submissions");
+  const [activeTab, setActiveTab] = useState<"submissions" | "approved" | "comments">("submissions");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [approvedSubmissions, setApprovedSubmissions] = useState<Submission[]>([]);
   const [flaggedComments, setFlaggedComments] = useState<FlaggedComment[]>([]);
   const [fetching, setFetching] = useState(true);
   const [actioningId, setActioningId] = useState<string | null>(null);
@@ -22,8 +23,11 @@ export default function AdminPage() {
         return;
       }
 
-      const [subsRes, commentsRes] = await Promise.all([
+      const [subsRes, approvedRes, commentsRes] = await Promise.all([
         fetch("/api/admin/submissions", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+        fetch("/api/admin/submissions?status=approved", {
           headers: { Authorization: `Bearer ${session.access_token}` },
         }),
         fetch("/api/admin/comments", {
@@ -33,6 +37,9 @@ export default function AdminPage() {
 
       if (subsRes.ok) {
         setSubmissions(await subsRes.json());
+      }
+      if (approvedRes.ok) {
+        setApprovedSubmissions(await approvedRes.json());
       }
       if (commentsRes.ok) {
         setFlaggedComments(await commentsRes.json());
@@ -163,6 +170,12 @@ export default function AdminPage() {
                 Submissions ({submissions.length})
               </button>
               <button
+                className={`admin-tab${activeTab === "approved" ? " active" : ""}`}
+                onClick={() => setActiveTab("approved")}
+              >
+                Approved ({approvedSubmissions.length})
+              </button>
+              <button
                 className={`admin-tab${activeTab === "comments" ? " active" : ""}`}
                 onClick={() => setActiveTab("comments")}
               >
@@ -226,6 +239,51 @@ export default function AdminPage() {
                         >
                           Reject
                         </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Approved Tab */}
+          {activeTab === "approved" && (
+            <>
+              {approvedSubmissions.length === 0 ? (
+                <div className="admin-empty">
+                  <p>No approved submissions yet.</p>
+                </div>
+              ) : (
+                <div className="admin-list">
+                  {approvedSubmissions.map((sub) => (
+                    <div key={sub.id} className="admin-card">
+                      <div className="admin-card-header">
+                        <span className="admin-card-user">
+                          {sub.users?.display_name || sub.users?.email || "unknown"}
+                        </span>
+                        <span className="admin-card-date">
+                          {new Date(sub.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="admin-card-body">
+                        <span className="status-badge status-approved">Approved</span>
+                        <h4>{sub.title}</h4>
+                        <div className="admin-card-meta">
+                          <span>Date: {sub.date}</span>
+                          <span>Category: {sub.category}</span>
+                        </div>
+                        {sub.description && <p>{sub.description}</p>}
+                        {sub.image_url && (
+                          <div className="admin-card-image">
+                            <img src={sub.image_url} alt={sub.title} style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 4, marginTop: 8 }} />
+                          </div>
+                        )}
+                        {sub.url && (
+                          <a href={sub.url} target="_blank" rel="noopener noreferrer" className="memory-link">
+                            {sub.url}
+                          </a>
+                        )}
                       </div>
                     </div>
                   ))}

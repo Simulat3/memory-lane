@@ -39,11 +39,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const statusFilter = new URL(request.url).searchParams.get("status") || "pending";
     const { data: submissions, error } = await supabase
       .from("submissions")
       .select("*")
-      .eq("status", "pending")
-      .order("created_at", { ascending: true });
+      .eq("status", statusFilter)
+      .order("created_at", { ascending: statusFilter === "approved" ? false : true });
 
     if (error) {
       return NextResponse.json({ error: "Submissions fetch failed", details: error.message }, { status: 500 });
