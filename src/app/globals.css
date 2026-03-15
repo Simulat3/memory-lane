@@ -312,7 +312,7 @@
     font-family: 'Tahoma', 'Segoe UI', sans-serif;
     color: #000;
     min-height: 100vh;
-    padding: 20px;
+    padding: 20px 20px 56px;
     background-image: url('/bliss.webp');
     background-size: cover;
     background-position: center;
@@ -948,16 +948,231 @@ header p {
     background: linear-gradient(180deg, #fff 0%, #dfd8c8 45%, #c8c0b0 100%);
 }
 
-footer {
+/* XP Taskbar */
+.xp-taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: linear-gradient(180deg, #3168d5 0%, #2456b8 3%, #1941a5 6%, #1941a5 94%, #122f7d 97%, #0e236b 100%);
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 6px 10px;
-    color: #666;
+    padding: 0 4px;
+    z-index: 9000;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.3);
+}
+
+.xp-start-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 12px 3px 6px;
+    background: linear-gradient(180deg, #3faa35 0%, #3faa35 3%, #328a28 50%, #21711a 97%, #1a5c14 100%);
+    border: none;
+    border-radius: 0 8px 8px 0;
+    color: #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.85rem;
+    font-weight: bold;
+    font-style: italic;
+    cursor: pointer;
+    height: 30px;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.xp-start-btn:hover {
+    background: linear-gradient(180deg, #4cbb42 0%, #4cbb42 3%, #3d9a33 50%, #2a8222 97%, #216c1a 100%);
+}
+
+.xp-start-btn:active {
+    background: linear-gradient(180deg, #2d8825 0%, #2d8825 50%, #1d6e18 100%);
+}
+
+.xp-taskbar-middle {
+    flex: 1;
+    margin: 0 8px;
+}
+
+.xp-taskbar-label {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 2px;
+    padding: 2px 10px;
     font-family: Tahoma, sans-serif;
     font-size: 0.7rem;
-    background: #ece9d8;
-    border-top: 1px solid #aca899;
+    color: #fff;
+}
+
+.xp-taskbar-clock {
+    background: linear-gradient(180deg, #1c6ee5 0%, #1558c0 50%, #0f429a 100%);
+    border-left: 1px solid rgba(255,255,255,0.15);
+    padding: 0 12px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    color: #fff;
+}
+
+/* Start Menu */
+.xp-start-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9001;
+}
+
+.xp-start-menu {
+    position: fixed;
+    bottom: 36px;
+    left: 0;
+    width: 280px;
+    background: #fff;
+    border: 2px solid #0054e3;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 4px -4px 12px rgba(0,0,0,0.3);
+    z-index: 9002;
+    overflow: hidden;
+    animation: startMenuSlide 0.15s ease-out;
+}
+
+@keyframes startMenuSlide {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.xp-start-header {
+    background: linear-gradient(180deg, #2a6ee8 0%, #1a56c4 100%);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.xp-start-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    border: 2px solid #fff;
+    object-fit: cover;
+}
+
+.xp-start-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    border: 2px solid #fff;
+    background: #3A6EA5;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Tahoma, sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.xp-start-username {
+    color: #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.xp-start-items {
+    padding: 6px 0;
+    background: #fff;
+}
+
+.xp-start-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.8rem;
+    color: #000;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: left;
+}
+
+.xp-start-item:hover {
+    background: #2a6ee8;
+    color: #fff;
+}
+
+.xp-start-item-icon {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+}
+
+.xp-start-footer {
+    background: linear-gradient(180deg, #4178d8 0%, #2a5caa 100%);
+    padding: 6px 8px;
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.xp-start-power {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: #fff;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.xp-start-power:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.xp-start-power-icon {
+    font-size: 0.85rem;
+}
+
+.xp-start-shutdown {
+    color: #ffcccc;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    margin-right: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.header-avatar-placeholder {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #3A6EA5;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Tahoma, sans-serif;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 1px solid rgba(255,255,255,0.5);
 }
 
 /* Auth Error */
@@ -2175,21 +2390,20 @@ footer {
 
 /* Notification badge */
 .notif-badge {
-    position: absolute;
-    top: -8px;
-    right: -10px;
     background: #cc0000;
     color: #fff;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: bold;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 8px;
-    display: flex;
+    min-width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
+    padding: 0 3px;
     font-family: Tahoma, sans-serif;
+    margin-left: 4px;
+    vertical-align: middle;
 }
 
 .notif-tab-badge {

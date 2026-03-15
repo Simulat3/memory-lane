@@ -107,7 +107,7 @@ export default function AuthButton({ onProfileClick, unreadCount = 0 }: AuthButt
           style={{ cursor: "pointer" }}
         />
       )}
-      <span className="auth-username" onClick={onProfileClick} style={{ cursor: "pointer", position: "relative" }}>
+      <span className="auth-username" onClick={onProfileClick} style={{ cursor: "pointer" }}>
         {profile?.display_name || user.email}
         {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
       </span>

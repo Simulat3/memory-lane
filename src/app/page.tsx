@@ -28,7 +28,7 @@ const MONTH_NAMES = [
 ];
 
 export default function Home() {
-  const { user, profile, isAdmin } = useAuth();
+  const { user, profile, isAdmin, signOut } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(0);
   const [currentYear, setCurrentYear] = useState(2000);
   const [communityMemories, setCommunityMemories] = useState<Memory[]>([]);
@@ -49,6 +49,7 @@ export default function Home() {
   const [infoModal, setInfoModal] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
+  const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
   const [bootReady, setBootReady] = useState(false);
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
@@ -373,8 +374,19 @@ export default function Home() {
             <h1>Nostalgia Calendar</h1>
             <p>Nostalgia Fuels the Future</p>
           </div>
-          <AuthButton onProfileClick={() => setProfileOpen(true)} unreadCount={unreadCount} />
-          <button className="auth-btn" onClick={() => setInfoModal(true)}>Info</button>
+          {user && profile && (
+            <div className="header-user" onClick={() => setProfileOpen(true)}>
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="auth-avatar" width={24} height={24} />
+              ) : (
+                <div className="header-avatar-placeholder">{profile.display_name.charAt(0).toUpperCase()}</div>
+              )}
+              <span className="auth-username">
+                {profile.display_name}
+                {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
+              </span>
+            </div>
+          )}
         </header>
 
         <div className="window-body">
@@ -460,8 +472,68 @@ export default function Home() {
           </div>
         </div>
 
-        <footer><span>Created by @JSimulat3</span><span>Revive Culture</span></footer>
+        </div>
+
+      {/* XP Taskbar */}
+      <div className="xp-taskbar">
+        <button className="xp-start-btn" onClick={() => setStartMenuOpen(!startMenuOpen)}>
+          <Image src="/logo.png" alt="" width={20} height={20} />
+          <span>start</span>
+        </button>
+        <div className="xp-taskbar-middle">
+          <span className="xp-taskbar-label">Nostalgia Rewind</span>
+        </div>
+        <div className="xp-taskbar-clock">
+          {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        </div>
       </div>
+
+      {/* Start Menu */}
+      {startMenuOpen && (
+        <>
+          <div className="xp-start-overlay" onClick={() => setStartMenuOpen(false)} />
+          <div className="xp-start-menu">
+            <div className="xp-start-header">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="xp-start-avatar" />
+              ) : (
+                <div className="xp-start-avatar-placeholder">{profile?.display_name?.charAt(0).toUpperCase() || "G"}</div>
+              )}
+              <span className="xp-start-username">{profile?.display_name || "Guest"}</span>
+            </div>
+            <div className="xp-start-items">
+              <button className="xp-start-item" onClick={() => { setStartMenuOpen(false); setProfileOpen(true); }}>
+                <span className="xp-start-item-icon">&#128100;</span>
+                My Profile
+              </button>
+              <button className="xp-start-item" onClick={() => { setStartMenuOpen(false); setSubmitDate(undefined); setSubmitModal(true); }}>
+                <span className="xp-start-item-icon">&#128221;</span>
+                Submit a Memory
+              </button>
+              <button className="xp-start-item" onClick={() => { setStartMenuOpen(false); setInfoModal(true); }}>
+                <span className="xp-start-item-icon">&#8505;</span>
+                Info
+              </button>
+              {isAdmin && (
+                <a href="/admin" className="xp-start-item" onClick={() => setStartMenuOpen(false)}>
+                  <span className="xp-start-item-icon">&#128736;</span>
+                  Admin Portal
+                </a>
+              )}
+            </div>
+            <div className="xp-start-footer">
+              <button className="xp-start-power" onClick={() => { setStartMenuOpen(false); signOut(); sessionStorage.removeItem("nr-booted"); setShowLogin(true); }}>
+                <span className="xp-start-power-icon">&#9211;</span>
+                Log Off
+              </button>
+              <button className="xp-start-power xp-start-shutdown" onClick={() => { setStartMenuOpen(false); window.close(); }}>
+                <span className="xp-start-power-icon">&#9724;</span>
+                Turn Off Computer
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* XP Error Dialog — Future */}
       {showFutureError && (
