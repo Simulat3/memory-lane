@@ -559,7 +559,7 @@ export default function Home() {
               <div className="xp-error-icon">&#9888;</div>
               <div className="xp-error-text">
                 <p><strong>C:\Restricted</strong> is not accessible.</p>
-                <p className="xp-error-subtext">The future is unwritten — submit the first entry.</p>
+                <p className="xp-error-subtext">The future is unwritten.</p>
               </div>
             </div>
             <div className="xp-error-actions">
