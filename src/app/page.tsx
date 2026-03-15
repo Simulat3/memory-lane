@@ -50,6 +50,7 @@ export default function Home() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showStartup, setShowStartup] = useState(true);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const [showShutdown, setShowShutdown] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
   const [bootReady, setBootReady] = useState(false);
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
@@ -321,6 +322,17 @@ export default function Home() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const today = new Date();
 
+  if (showShutdown) {
+    return (
+      <div className="xp-shutdown">
+        <p className="xp-shutdown-text">Windows is shutting down...</p>
+        <div className="xp-shutdown-logo">
+          <Image src="/logo.png" alt="Y2K Logo" width={100} height={100} />
+        </div>
+      </div>
+    );
+  }
+
   if (showStartup) {
     return (
       <div className="xp-boot" onClick={() => {
@@ -526,7 +538,7 @@ export default function Home() {
                 <span className="xp-start-power-icon">&#9211;</span>
                 Log Off
               </button>
-              <button className="xp-start-power xp-start-shutdown" onClick={() => { setStartMenuOpen(false); window.close(); }}>
+              <button className="xp-start-power xp-start-shutdown" onClick={() => { setStartMenuOpen(false); signOut(); sessionStorage.removeItem("nr-booted"); setShowShutdown(true); }}>
                 <span className="xp-start-power-icon">&#9724;</span>
                 Turn Off Computer
               </button>

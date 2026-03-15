@@ -1,6 +1,39 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 
+/* XP Shutdown Screen */
+.xp-shutdown {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #000;
+}
+
+.xp-shutdown-text {
+    font-family: Tahoma, sans-serif;
+    font-size: 1.2rem;
+    color: #fff;
+    animation: shutdownTextFade 3s ease-in forwards;
+}
+
+.xp-shutdown-logo {
+    opacity: 0;
+    animation: shutdownLogoFade 2s ease-in 3s forwards;
+}
+
+@keyframes shutdownTextFade {
+    0% { opacity: 1; }
+    60% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes shutdownLogoFade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 /* XP Boot Screen */
 .xp-boot {
     display: flex;
