@@ -1298,7 +1298,9 @@ header p {
 }
 
 .time-nav-btn {
-    padding: 4px 16px;
+    padding: 4px 0;
+    width: 80px;
+    text-align: center;
     font-family: Tahoma, sans-serif;
     font-size: 0.8rem;
     border: 1px solid #888;
