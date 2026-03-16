@@ -122,7 +122,7 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
     const submission = submissions.find((s) => s.id === id);
     if (!submission) return;
 
-    const endpoint = submission.is_public ? `/api/admin/submissions/${id}` : `/api/submissions/${id}`;
+    const endpoint = (submission.is_public && submission.status !== "pending") ? `/api/admin/submissions/${id}` : `/api/submissions/${id}`;
     const res = await fetch(endpoint, {
       method: "PATCH",
       headers: {
@@ -378,18 +378,22 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
                     <div className="profile-memory-footer">
                       <span className="profile-memory-date">{sub.date}</span>
                       <div className="profile-memory-actions">
-                        <button onClick={() => {
-                          setEditingId(sub.id);
-                          setEditFields({
-                            title: sub.title,
-                            description: sub.description || "",
-                            date: sub.date,
-                            category: sub.category,
-                            url: sub.url || "",
-                            image_url: sub.image_url || "",
-                          });
-                        }}>Edit</button>
-                        <button className="profile-delete-btn" onClick={() => handleDelete(sub.id)}>Delete</button>
+                        {(!sub.is_public || sub.status === "pending") && (
+                          <button onClick={() => {
+                            setEditingId(sub.id);
+                            setEditFields({
+                              title: sub.title,
+                              description: sub.description || "",
+                              date: sub.date,
+                              category: sub.category,
+                              url: sub.url || "",
+                              image_url: sub.image_url || "",
+                            });
+                          }}>Edit</button>
+                        )}
+                        {!sub.is_public && (
+                          <button className="profile-delete-btn" onClick={() => handleDelete(sub.id)}>Delete</button>
+                        )}
                       </div>
                     </div>
                   </>

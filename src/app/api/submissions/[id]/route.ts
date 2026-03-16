@@ -19,10 +19,10 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Verify the user owns this submission and it's private
+  // Verify the user owns this submission and it's editable (private or pending)
   const { data: submission } = await getSupabaseAdmin()
     .from("submissions")
-    .select("user_id, is_public")
+    .select("user_id, is_public, status")
     .eq("id", id)
     .single();
 
@@ -34,8 +34,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (submission.is_public) {
-    return NextResponse.json({ error: "Cannot edit public submissions" }, { status: 403 });
+  if (submission.is_public && submission.status !== "pending") {
+    return NextResponse.json({ error: "Cannot edit approved/rejected submissions" }, { status: 403 });
   }
 
   const body = await request.json();
