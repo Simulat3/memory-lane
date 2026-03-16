@@ -608,8 +608,10 @@ export default function Home() {
             setSelectedMemory(null);
           }}
           canEdit={
-            (isAdmin && !!selectedMemory.communitySubmission) ||
-            (!isAdmin && !!selectedMemory.isPrivate && user?.id === selectedMemory.userId)
+            !selectedMemory.preset && !!user && (
+              isAdmin ||
+              user.id === selectedMemory.userId
+            )
           }
           onMemoryChanged={fetchApprovedSubmissions}
         />
