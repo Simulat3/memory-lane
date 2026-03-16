@@ -39,8 +39,6 @@ export default function Home() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickerMonth, setPickerMonth] = useState(0);
   const [pickerYear, setPickerYear] = useState(2000);
-  const [editingMemoryId, setEditingMemoryId] = useState<string | number | null>(null);
-  const [editFields, setEditFields] = useState<{ title: string; description: string; date: string; category: Category; url: string; image_url: string }>({ title: "", description: "", date: "", category: "memory", url: "", image_url: "" });
 
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -176,27 +174,25 @@ export default function Home() {
     audio.play().catch(() => {});
   }
 
-  async function handleAdminSave(memoryId: string | number) {
+  async function handleMemorySave(memoryId: string | number, fields: { title: string; description: string; date: string; category: Category; url: string; image_url: string }) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const res = await fetch(`/api/admin/submissions/${memoryId}`, {
+
+    const mem = selectedMemory;
+    const useAdminEndpoint = isAdmin && mem && !mem.isPrivate;
+    const endpoint = useAdminEndpoint ? `/api/admin/submissions/${memoryId}` : `/api/submissions/${memoryId}`;
+
+    const res = await fetch(endpoint, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({
-        title: editFields.title,
-        description: editFields.description,
-        date: editFields.date,
-        category: editFields.category,
-        url: editFields.url,
-        image_url: editFields.image_url,
-      }),
+      body: JSON.stringify(fields),
     });
     if (res.ok) {
-      setEditingMemoryId(null);
       await fetchApprovedSubmissions();
+      setSelectedMemory(null);
       setViewModal(null);
     }
   }
@@ -210,31 +206,6 @@ export default function Home() {
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
     if (res.ok) {
-      await fetchApprovedSubmissions();
-      setViewModal(null);
-    }
-  }
-
-  async function handleUserSave(memoryId: string | number) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const res = await fetch(`/api/submissions/${memoryId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({
-        title: editFields.title,
-        description: editFields.description,
-        date: editFields.date,
-        category: editFields.category,
-        url: editFields.url,
-        image_url: editFields.image_url,
-      }),
-    });
-    if (res.ok) {
-      setEditingMemoryId(null);
       await fetchApprovedSubmissions();
       setViewModal(null);
     }
@@ -627,17 +598,7 @@ export default function Home() {
           memory={selectedMemory}
           onBack={() => { setSelectedMemory(null); if (viewModal) fetchReactionCounts(viewModal.memories); }}
           onClose={() => { setSelectedMemory(null); setViewModal(null); }}
-          onEdit={(mem) => {
-            setEditingMemoryId(mem.id);
-            setEditFields({
-              title: mem.title,
-              description: mem.description || "",
-              date: mem.date,
-              category: mem.category,
-              url: mem.url || "",
-              image_url: mem.image || "",
-            });
-          }}
+          onSave={handleMemorySave}
           onDelete={(mem) => {
             if (mem.isPrivate && user?.id === mem.userId) {
               handleUserDelete(mem.id);

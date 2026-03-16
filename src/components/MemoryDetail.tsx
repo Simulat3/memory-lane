@@ -19,17 +19,27 @@ interface MemoryDetailProps {
   memory: Memory;
   onBack: () => void;
   onClose: () => void;
-  onEdit: (mem: Memory) => void;
+  onSave: (memoryId: string | number, fields: { title: string; description: string; date: string; category: Category; url: string; image_url: string }) => Promise<void>;
   onDelete: (mem: Memory) => void;
   canEdit: boolean;
   onMemoryChanged: () => void;
 }
 
-export default function MemoryDetail({ memory, onBack, onClose, onEdit, onDelete, canEdit, onMemoryChanged }: MemoryDetailProps) {
+export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete, canEdit, onMemoryChanged }: MemoryDetailProps) {
   const { user } = useAuth();
   const [reactionCount, setReactionCount] = useState(0);
   const [userReacted, setUserReacted] = useState(false);
   const [reacting, setReacting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editFields, setEditFields] = useState({
+    title: memory.title,
+    description: memory.description || "",
+    date: memory.date,
+    category: memory.category,
+    url: memory.url || "",
+    image_url: memory.image || "",
+  });
 
   const memoryType = memory.preset ? "preset" : "submission";
   const memoryId = String(memory.id);
@@ -92,6 +102,13 @@ export default function MemoryDetail({ memory, onBack, onClose, onEdit, onDelete
     }
   }
 
+  async function handleSave() {
+    setSaving(true);
+    await onSave(memory.id, editFields);
+    setSaving(false);
+    setEditing(false);
+  }
+
   return (
     <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal">
@@ -102,65 +119,104 @@ export default function MemoryDetail({ memory, onBack, onClose, onEdit, onDelete
         </h3>
 
         <div className="memory-detail-content">
-          <div className="memory-detail-meta">
-            <span
-              className="category-badge"
-              style={{ backgroundColor: CATEGORIES.find(c => c.value === memory.category)?.color || "#0054e3" }}
-            >
-              {CATEGORIES.find(c => c.value === memory.category)?.label || "Memory"}
-            </span>
-            {memory.isPrivate && (
-              <span className="private-badge">&#128274; Private</span>
-            )}
-            {memory.communitySubmission && memory.submittedBy && (
-              <span className="submitted-by">Submitted by {memory.submittedBy}</span>
-            )}
-          </div>
-
-          <div className="memory-detail-date">Date: {memory.date}</div>
-
-          {memory.description && <p className="memory-detail-desc">{memory.description}</p>}
-
-          {memory.image && (
-            <img src={memory.image} alt={memory.title} className="memory-detail-img" />
-          )}
-
-          {memory.url && (
-            <a href={memory.url} target="_blank" rel="noopener noreferrer" className="memory-link">
-              View more info
-            </a>
-          )}
-
-          {/* Reaction */}
-          {!memory.isPrivate && (
-            <div className="reaction-section">
-              <span className="reaction-label">Upvote:</span>
-              <button
-                className={`reaction-btn${userReacted ? " reacted" : ""}`}
-                onClick={handleReaction}
-                disabled={!user || reacting}
-                title={user ? (userReacted ? "Remove upvote" : "Upvote") : "Sign in to upvote"}
-              >
-                <span className="reaction-emoji">&#128223;</span>
-              </button>
-              <span className="reaction-count">{reactionCount}</span>
+          {editing ? (
+            <div className="admin-edit-form">
+              <div className="form-group">
+                <label>Title</label>
+                <input type="text" value={editFields.title} onChange={(e) => setEditFields({ ...editFields, title: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea value={editFields.description} onChange={(e) => setEditFields({ ...editFields, description: e.target.value })} rows={3} />
+              </div>
+              <div className="form-group">
+                <label>Date</label>
+                <input type="date" value={editFields.date} onChange={(e) => setEditFields({ ...editFields, date: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Category</label>
+                <select value={editFields.category} onChange={(e) => setEditFields({ ...editFields, category: e.target.value as Category })}>
+                  {CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>URL</label>
+                <input type="text" value={editFields.url} onChange={(e) => setEditFields({ ...editFields, url: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Image URL</label>
+                <input type="text" value={editFields.image_url} onChange={(e) => setEditFields({ ...editFields, image_url: e.target.value })} />
+              </div>
+              <div className="admin-edit-actions">
+                <button className="admin-save-btn" onClick={handleSave} disabled={saving}>{saving ? "..." : "Save"}</button>
+                <button className="admin-cancel-btn" onClick={() => setEditing(false)}>Cancel</button>
+              </div>
             </div>
-          )}
+          ) : (
+            <>
+              <div className="memory-detail-meta">
+                <span
+                  className="category-badge"
+                  style={{ backgroundColor: CATEGORIES.find(c => c.value === memory.category)?.color || "#0054e3" }}
+                >
+                  {CATEGORIES.find(c => c.value === memory.category)?.label || "Memory"}
+                </span>
+                {memory.isPrivate && (
+                  <span className="private-badge">&#128274; Private</span>
+                )}
+                {memory.communitySubmission && memory.submittedBy && (
+                  <span className="submitted-by">Submitted by {memory.submittedBy}</span>
+                )}
+              </div>
 
-          {/* Edit/Delete */}
-          {canEdit && (
-            <div className="admin-actions">
-              <button className="admin-edit-btn" onClick={() => onEdit(memory)}>Edit</button>
-              <button className="admin-delete-btn" onClick={() => onDelete(memory)}>Delete</button>
-            </div>
-          )}
+              <div className="memory-detail-date">Date: {memory.date}</div>
 
-          {/* Comments */}
-          {!memory.isPrivate && (
-            <CommentsSection
-              memoryId={memoryId}
-              memoryType={memoryType}
-            />
+              {memory.description && <p className="memory-detail-desc">{memory.description}</p>}
+
+              {memory.image && (
+                <img src={memory.image} alt={memory.title} className="memory-detail-img" />
+              )}
+
+              {memory.url && (
+                <a href={memory.url} target="_blank" rel="noopener noreferrer" className="memory-link">
+                  View more info
+                </a>
+              )}
+
+              {/* Reaction */}
+              {!memory.isPrivate && (
+                <div className="reaction-section">
+                  <span className="reaction-label">Upvote:</span>
+                  <button
+                    className={`reaction-btn${userReacted ? " reacted" : ""}`}
+                    onClick={handleReaction}
+                    disabled={!user || reacting}
+                    title={user ? (userReacted ? "Remove upvote" : "Upvote") : "Sign in to upvote"}
+                  >
+                    <span className="reaction-emoji">&#128223;</span>
+                  </button>
+                  <span className="reaction-count">{reactionCount}</span>
+                </div>
+              )}
+
+              {/* Edit/Delete */}
+              {canEdit && (
+                <div className="admin-actions">
+                  <button className="admin-edit-btn" onClick={() => setEditing(true)}>Edit</button>
+                  <button className="admin-delete-btn" onClick={() => onDelete(memory)}>Delete</button>
+                </div>
+              )}
+
+              {/* Comments */}
+              {!memory.isPrivate && (
+                <CommentsSection
+                  memoryId={memoryId}
+                  memoryType={memoryType}
+                />
+              )}
+            </>
           )}
         </div>
       </div>
