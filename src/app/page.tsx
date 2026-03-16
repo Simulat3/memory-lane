@@ -174,9 +174,9 @@ export default function Home() {
     audio.play().catch(() => {});
   }
 
-  async function handleMemorySave(memoryId: string | number, fields: { title: string; description: string; date: string; category: Category; url: string; image_url: string }) {
+  async function handleMemorySave(memoryId: string | number, fields: { title: string; description: string; date: string; category: Category; url: string; image_url: string }): Promise<boolean> {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) return false;
 
     const mem = selectedMemory;
     const useAdminEndpoint = isAdmin && mem && !mem.isPrivate;
@@ -191,10 +191,15 @@ export default function Home() {
       body: JSON.stringify(fields),
     });
     if (res.ok) {
+      const data = await res.json();
       await fetchApprovedSubmissions();
+      if (data.edit_pending) {
+        return true; // edit is pending admin review
+      }
       setSelectedMemory(null);
       setViewModal(null);
     }
+    return false;
   }
 
   async function handleAdminDelete(memoryId: string | number) {

@@ -119,11 +119,7 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const submission = submissions.find((s) => s.id === id);
-    if (!submission) return;
-
-    const endpoint = (submission.is_public && submission.status !== "pending") ? `/api/admin/submissions/${id}` : `/api/submissions/${id}`;
-    const res = await fetch(endpoint, {
+    const res = await fetch(`/api/submissions/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -133,7 +129,11 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
     });
 
     if (res.ok) {
+      const data = await res.json();
       setEditingId(null);
+      if (data.edit_pending) {
+        alert("Your edit has been submitted for review. The original will remain visible until approved.");
+      }
       await fetchUserSubmissions();
       onMemoriesChanged();
     }
@@ -370,6 +370,11 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
                           {sub.status}
                         </span>
                       )}
+                      {sub.pending_edit && (
+                        <span className="status-badge" style={{ background: "#e6a800", color: "#fff" }}>
+                          edit pending
+                        </span>
+                      )}
                     </div>
                     <div className="profile-memory-title">{sub.title}</div>
                     {sub.description && (
@@ -378,7 +383,7 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
                     <div className="profile-memory-footer">
                       <span className="profile-memory-date">{sub.date}</span>
                       <div className="profile-memory-actions">
-                        {(!sub.is_public || sub.status === "pending") && (
+                        {(!sub.is_public || sub.status === "pending" || sub.status === "approved") && (
                           <button onClick={() => {
                             setEditingId(sub.id);
                             setEditFields({

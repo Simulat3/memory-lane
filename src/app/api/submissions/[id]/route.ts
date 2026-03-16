@@ -34,28 +34,45 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (submission.is_public && submission.status !== "pending") {
-    return NextResponse.json({ error: "Cannot edit approved/rejected submissions" }, { status: 403 });
+  if (submission.is_public && submission.status === "rejected") {
+    return NextResponse.json({ error: "Cannot edit rejected submissions" }, { status: 403 });
   }
 
   const body = await request.json();
   const { title, description, date, category, url, image_url } = body;
 
-  const updateFields: Record<string, unknown> = {};
-  if (title !== undefined) updateFields.title = title;
-  if (description !== undefined) updateFields.description = description;
-  if (date !== undefined) updateFields.date = date;
-  if (category !== undefined) updateFields.category = category;
-  if (url !== undefined) updateFields.url = url;
-  if (image_url !== undefined) updateFields.image_url = image_url;
+  const editFields: Record<string, unknown> = {};
+  if (title !== undefined) editFields.title = title;
+  if (description !== undefined) editFields.description = description;
+  if (date !== undefined) editFields.date = date;
+  if (category !== undefined) editFields.category = category;
+  if (url !== undefined) editFields.url = url;
+  if (image_url !== undefined) editFields.image_url = image_url;
 
-  if (Object.keys(updateFields).length === 0) {
+  if (Object.keys(editFields).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
+  // If the submission is approved and public, store edits as pending_edit for admin review
+  if (submission.is_public && submission.status === "approved") {
+    const { data, error } = await getSupabaseAdmin()
+      .from("submissions")
+      .update({ pending_edit: editFields })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ...data, edit_pending: true });
+  }
+
+  // Otherwise (private or pending), update directly
   const { data, error } = await getSupabaseAdmin()
     .from("submissions")
-    .update(updateFields)
+    .update(editFields)
     .eq("id", id)
     .select()
     .single();

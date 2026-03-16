@@ -40,11 +40,23 @@ export async function GET(request: NextRequest) {
     }
 
     const statusFilter = new URL(request.url).searchParams.get("status") || "pending";
-    const { data: submissions, error } = await supabase
-      .from("submissions")
-      .select("*")
-      .eq("status", statusFilter)
-      .order("created_at", { ascending: statusFilter === "approved" ? false : true });
+
+    let query;
+    if (statusFilter === "pending_edits") {
+      query = supabase
+        .from("submissions")
+        .select("*")
+        .not("pending_edit", "is", null)
+        .order("created_at", { ascending: false });
+    } else {
+      query = supabase
+        .from("submissions")
+        .select("*")
+        .eq("status", statusFilter)
+        .order("created_at", { ascending: statusFilter === "approved" ? false : true });
+    }
+
+    const { data: submissions, error } = await query;
 
     if (error) {
       return NextResponse.json({ error: "Submissions fetch failed", details: error.message }, { status: 500 });

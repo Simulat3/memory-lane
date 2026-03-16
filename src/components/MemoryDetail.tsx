@@ -19,7 +19,7 @@ interface MemoryDetailProps {
   memory: Memory;
   onBack: () => void;
   onClose: () => void;
-  onSave: (memoryId: string | number, fields: { title: string; description: string; date: string; category: Category; url: string; image_url: string }) => Promise<void>;
+  onSave: (memoryId: string | number, fields: { title: string; description: string; date: string; category: Category; url: string; image_url: string }) => Promise<boolean>;
   onDelete: (mem: Memory) => void;
   canEdit: boolean;
   onMemoryChanged: () => void;
@@ -32,6 +32,7 @@ export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete
   const [reacting, setReacting] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editPendingMsg, setEditPendingMsg] = useState(false);
   const [editFields, setEditFields] = useState({
     title: memory.title,
     description: memory.description || "",
@@ -104,9 +105,12 @@ export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete
 
   async function handleSave() {
     setSaving(true);
-    await onSave(memory.id, editFields);
+    const isPending = await onSave(memory.id, editFields);
     setSaving(false);
     setEditing(false);
+    if (isPending) {
+      setEditPendingMsg(true);
+    }
   }
 
   return (
@@ -201,8 +205,15 @@ export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete
                 </div>
               )}
 
+              {/* Edit pending message */}
+              {editPendingMsg && (
+                <div className="edit-pending-notice">
+                  Your edit has been submitted for review. The original will remain visible until approved.
+                </div>
+              )}
+
               {/* Edit/Delete */}
-              {canEdit && (
+              {canEdit && !editPendingMsg && (
                 <div className="admin-actions">
                   <button className="admin-edit-btn" onClick={() => setEditing(true)}>Edit</button>
                   <button className="admin-delete-btn" onClick={() => onDelete(memory)}>Delete</button>

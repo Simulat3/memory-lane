@@ -8,8 +8,9 @@ import type { Submission, FlaggedComment } from "../../lib/types";
 
 export default function AdminPage() {
   const { user, profile, isAdmin, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"submissions" | "approved" | "comments">("submissions");
+  const [activeTab, setActiveTab] = useState<"submissions" | "pending_edits" | "approved" | "comments">("submissions");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [pendingEdits, setPendingEdits] = useState<Submission[]>([]);
   const [approvedSubmissions, setApprovedSubmissions] = useState<Submission[]>([]);
   const [flaggedComments, setFlaggedComments] = useState<FlaggedComment[]>([]);
   const [fetching, setFetching] = useState(true);
@@ -23,8 +24,11 @@ export default function AdminPage() {
         return;
       }
 
-      const [subsRes, approvedRes, commentsRes] = await Promise.all([
+      const [subsRes, editsRes, approvedRes, commentsRes] = await Promise.all([
         fetch("/api/admin/submissions", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+        fetch("/api/admin/submissions?status=pending_edits", {
           headers: { Authorization: `Bearer ${session.access_token}` },
         }),
         fetch("/api/admin/submissions?status=approved", {
@@ -37,6 +41,9 @@ export default function AdminPage() {
 
       if (subsRes.ok) {
         setSubmissions(await subsRes.json());
+      }
+      if (editsRes.ok) {
+        setPendingEdits(await editsRes.json());
       }
       if (approvedRes.ok) {
         setApprovedSubmissions(await approvedRes.json());
@@ -71,6 +78,26 @@ export default function AdminPage() {
 
     if (res.ok) {
       setSubmissions(submissions.filter((s) => s.id !== id));
+    }
+    setActioningId(null);
+  }
+
+  async function handleEditAction(id: string, approve: boolean) {
+    setActioningId(id);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const res = await fetch(`/api/admin/submissions/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ approve_edit: approve }),
+    });
+
+    if (res.ok) {
+      setPendingEdits(pendingEdits.filter((s) => s.id !== id));
     }
     setActioningId(null);
   }
@@ -170,6 +197,13 @@ export default function AdminPage() {
                 Submissions ({submissions.length})
               </button>
               <button
+                className={`admin-tab${activeTab === "pending_edits" ? " active" : ""}`}
+                onClick={() => setActiveTab("pending_edits")}
+              >
+                Pending Edits ({pendingEdits.length})
+                {pendingEdits.length > 0 && <span className="admin-tab-badge">!</span>}
+              </button>
+              <button
                 className={`admin-tab${activeTab === "approved" ? " active" : ""}`}
                 onClick={() => setActiveTab("approved")}
               >
@@ -242,6 +276,107 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Pending Edits Tab */}
+          {activeTab === "pending_edits" && (
+            <>
+              {pendingEdits.length === 0 ? (
+                <div className="admin-empty">
+                  <p>No pending edits to review.</p>
+                </div>
+              ) : (
+                <div className="admin-list">
+                  {pendingEdits.map((sub) => {
+                    const edit = sub.pending_edit as Record<string, string> | null;
+                    if (!edit) return null;
+                    return (
+                      <div key={sub.id} className="admin-card">
+                        <div className="admin-card-header">
+                          <span className="admin-card-user">
+                            {sub.users?.display_name || sub.users?.email || "unknown"}
+                          </span>
+                          <span className="admin-card-date">
+                            {new Date(sub.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="admin-card-body">
+                          <span className="status-badge status-pending">Edit Pending</span>
+                          <h4>{sub.title}</h4>
+                          <div className="admin-edit-diff">
+                            <p style={{ fontWeight: 600, marginBottom: 4 }}>Proposed changes:</p>
+                            {edit.title && edit.title !== sub.title && (
+                              <div className="edit-diff-row">
+                                <span className="diff-label">Title:</span>
+                                <span className="diff-old">{sub.title}</span>
+                                <span className="diff-arrow">&rarr;</span>
+                                <span className="diff-new">{edit.title}</span>
+                              </div>
+                            )}
+                            {edit.description !== undefined && edit.description !== sub.description && (
+                              <div className="edit-diff-row">
+                                <span className="diff-label">Description:</span>
+                                <span className="diff-old">{sub.description || "(empty)"}</span>
+                                <span className="diff-arrow">&rarr;</span>
+                                <span className="diff-new">{edit.description || "(empty)"}</span>
+                              </div>
+                            )}
+                            {edit.date && edit.date !== sub.date && (
+                              <div className="edit-diff-row">
+                                <span className="diff-label">Date:</span>
+                                <span className="diff-old">{sub.date}</span>
+                                <span className="diff-arrow">&rarr;</span>
+                                <span className="diff-new">{edit.date}</span>
+                              </div>
+                            )}
+                            {edit.category && edit.category !== sub.category && (
+                              <div className="edit-diff-row">
+                                <span className="diff-label">Category:</span>
+                                <span className="diff-old">{sub.category}</span>
+                                <span className="diff-arrow">&rarr;</span>
+                                <span className="diff-new">{edit.category}</span>
+                              </div>
+                            )}
+                            {edit.url !== undefined && edit.url !== sub.url && (
+                              <div className="edit-diff-row">
+                                <span className="diff-label">URL:</span>
+                                <span className="diff-old">{sub.url || "(empty)"}</span>
+                                <span className="diff-arrow">&rarr;</span>
+                                <span className="diff-new">{edit.url || "(empty)"}</span>
+                              </div>
+                            )}
+                            {edit.image_url !== undefined && edit.image_url !== sub.image_url && (
+                              <div className="edit-diff-row">
+                                <span className="diff-label">Image:</span>
+                                <span className="diff-old">{sub.image_url || "(empty)"}</span>
+                                <span className="diff-arrow">&rarr;</span>
+                                <span className="diff-new">{edit.image_url || "(empty)"}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="admin-card-actions">
+                          <button
+                            className="btn-approve"
+                            disabled={actioningId === sub.id}
+                            onClick={() => handleEditAction(sub.id, true)}
+                          >
+                            Approve Edit
+                          </button>
+                          <button
+                            className="btn-reject"
+                            disabled={actioningId === sub.id}
+                            onClick={() => handleEditAction(sub.id, false)}
+                          >
+                            Reject Edit
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </>

@@ -29,6 +29,7 @@ export interface Submission {
   created_at: string;
   reviewed_at: string | null;
   reviewed_by: string | null;
+  pending_edit?: Record<string, unknown> | null;
   users?: {
     display_name: string;
     email: string;
