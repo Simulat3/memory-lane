@@ -53,6 +53,8 @@ export default function Home() {
   const [showShutdown, setShowShutdown] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
   const [bootReady, setBootReady] = useState(false);
+  const [showThemes, setShowThemes] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState("bliss");
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
 
   useEffect(() => {
@@ -60,7 +62,22 @@ export default function Home() {
       setShowStartup(false);
       setShowLogin(false);
     }
+    const savedTheme = localStorage.getItem("nr-theme");
+    if (savedTheme) setCurrentTheme(savedTheme);
   }, []);
+
+  function changeTheme(theme: string) {
+    setCurrentTheme(theme);
+    localStorage.setItem("nr-theme", theme);
+    setShowThemes(false);
+  }
+
+  const THEMES = [
+    { id: "bliss", name: "Bliss", image: "/themes/bliss.webp" },
+    { id: "desert", name: "Desert", image: "/themes/Desert.webp" },
+    { id: "autumn", name: "Autumn", image: "/themes/Autumn.webp" },
+    { id: "azul", name: "Azul", image: "/themes/Azul.webp" },
+  ];
 
   const [signedInThisSession, setSignedInThisSession] = useState(false);
 
@@ -358,7 +375,7 @@ export default function Home() {
   }
 
   return (
-    <div className="xp-desktop">
+    <div className="xp-desktop" style={{ backgroundImage: `url('${THEMES.find(t => t.id === currentTheme)?.image || "/themes/bliss.webp"}')` }}>
       {showVerifiedBanner && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setShowVerifiedBanner(false); }}>
           <div className="xp-error-dialog">
@@ -526,6 +543,10 @@ export default function Home() {
                 <span className="xp-start-item-icon">&#8505;</span>
                 Info
               </button>
+              <button className="xp-start-item" onClick={() => { setStartMenuOpen(false); setShowThemes(true); }}>
+                <span className="xp-start-item-icon">&#127912;</span>
+                Themes
+              </button>
               {isAdmin && (
                 <a href="/admin" className="xp-start-item" onClick={() => setStartMenuOpen(false)}>
                   <span className="xp-start-item-icon">&#128736;</span>
@@ -660,6 +681,30 @@ export default function Home() {
           onSubmitted={fetchApprovedSubmissions}
           defaultDate={submitDate}
         />
+      )}
+
+      {/* Theme Picker */}
+      {showThemes && (
+        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setShowThemes(false); }}>
+          <div className="xp-error-dialog" style={{ width: 420 }}>
+            <div className="xp-error-titlebar">
+              <span>Display Properties — Themes</span>
+              <button className="xp-error-close" onClick={() => setShowThemes(false)}>&#10005;</button>
+            </div>
+            <div className="theme-picker">
+              {THEMES.map((theme) => (
+                <button
+                  key={theme.id}
+                  className={`theme-option${currentTheme === theme.id ? " theme-active" : ""}`}
+                  onClick={() => changeTheme(theme.id)}
+                >
+                  <img src={theme.image} alt={theme.name} className="theme-preview" />
+                  <span className="theme-name">{theme.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Profile Panel */}
