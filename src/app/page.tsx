@@ -74,9 +74,9 @@ export default function Home() {
 
   const THEMES = [
     { id: "bliss", name: "Bliss", image: "/themes/bliss.webp" },
-    { id: "desert", name: "Desert", image: "/themes/Desert.webp" },
-    { id: "autumn", name: "Autumn", image: "/themes/Autumn.webp" },
-    { id: "azul", name: "Azul", image: "/themes/Azul.webp" },
+    { id: "desert", name: "Desert", image: "/themes/desert.webp" },
+    { id: "autumn", name: "Autumn", image: "/themes/autumn.webp" },
+    { id: "azul", name: "Azul", image: "/themes/azul.webp" },
   ];
 
   const [signedInThisSession, setSignedInThisSession] = useState(false);
