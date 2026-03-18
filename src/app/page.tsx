@@ -330,7 +330,6 @@ export default function Home() {
     return (
       <div className="xp-boot" onClick={() => {
         if (!bootReady) return;
-        playStartupSound();
         setShowStartup(false);
       }}>
         <div className="xp-boot-logo">
@@ -347,7 +346,7 @@ export default function Home() {
   }
 
   if (showLogin) {
-    return <XPLoginScreen onEnter={() => { sessionStorage.setItem("nr-booted", "1"); setShowLogin(false); }} onSignIn={() => setSignedInThisSession(true)} loggedInProfile={profile} />;
+    return <XPLoginScreen onEnter={() => { playStartupSound(); sessionStorage.setItem("nr-booted", "1"); setShowLogin(false); }} onSignIn={() => setSignedInThisSession(true)} loggedInProfile={profile} />;
   }
 
   return (
