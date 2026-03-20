@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
   // Fetch user info separately
   const userIds = [...new Set(allSubmissions.map((s: { user_id: string }) => s.user_id))];
   const { data: users } = userIds.length > 0
-    ? await supabase.from("users").select("id, display_name, email").in("id", userIds)
+    ? await supabase.from("users").select("id, display_name, email, avatar_url").in("id", userIds)
     : { data: [] };
 
-  const userMap = new Map((users || []).map((u: { id: string; display_name: string; email: string }) => [u.id, u]));
+  const userMap = new Map((users || []).map((u: { id: string; display_name: string; email: string; avatar_url: string }) => [u.id, u]));
   const enriched = allSubmissions.map((s: { user_id: string }) => ({
     ...s,
     users: userMap.get(s.user_id) || null,

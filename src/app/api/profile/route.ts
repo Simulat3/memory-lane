@@ -90,6 +90,13 @@ export async function PATCH(request: NextRequest) {
     updates.avatar_url = body.avatar_url;
   }
 
+  if (body.bio !== undefined) {
+    if (body.bio.length > 300) {
+      return NextResponse.json({ error: "Bio must be 300 characters or less" }, { status: 400 });
+    }
+    updates.bio = body.bio.trim();
+  }
+
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }

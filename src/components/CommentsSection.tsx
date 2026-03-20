@@ -8,9 +8,10 @@ import type { Comment } from "../lib/types";
 interface CommentsSectionProps {
   memoryId: string | number;
   memoryType: "preset" | "submission";
+  onViewProfile?: (userId: string) => void;
 }
 
-export default function CommentsSection({ memoryId, memoryType }: CommentsSectionProps) {
+export default function CommentsSection({ memoryId, memoryType, onViewProfile }: CommentsSectionProps) {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +145,7 @@ export default function CommentsSection({ memoryId, memoryType }: CommentsSectio
               </div>
               <div className="comment-body">
                 <div className="comment-meta">
-                  <span className="comment-author">
+                  <span className="comment-author clickable-username" onClick={() => { if (onViewProfile) onViewProfile(comment.user_id); }}>
                     {comment.users?.display_name || "Anonymous"}
                   </span>
                   <span className="comment-time">{timeAgo(comment.created_at)}</span>

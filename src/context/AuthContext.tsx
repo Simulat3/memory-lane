@@ -13,7 +13,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<string | null>;
   signUp: (email: string, password: string, displayName: string) => Promise<string | null>;
   signOut: () => void;
-  updateProfile: (updates: { display_name?: string; avatar_url?: string }) => Promise<string | null>;
+  updateProfile: (updates: { display_name?: string; avatar_url?: string; bio?: string }) => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -43,6 +43,7 @@ const DEV_PROFILE: UserProfile = {
   email: "admin@dev.local",
   display_name: "JSimulat3",
   avatar_url: "/logo.png",
+  bio: "",
   is_admin: true,
   created_at: "2025-01-01T00:00:00Z",
 };
@@ -127,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   }
 
-  async function updateProfile(updates: { display_name?: string; avatar_url?: string }): Promise<string | null> {
+  async function updateProfile(updates: { display_name?: string; avatar_url?: string; bio?: string }): Promise<string | null> {
     // In dev bypass, just update local state
     if (devBypass) {
       setProfile((prev) => prev ? { ...prev, ...updates } : prev);

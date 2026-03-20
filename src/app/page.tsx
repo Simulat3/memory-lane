@@ -8,6 +8,7 @@ import AuthButton from "../components/AuthButton";
 import SubmitEventModal from "../components/SubmitEventModal";
 import ProfilePanel from "../components/ProfilePanel";
 import MemoryDetail from "../components/MemoryDetail";
+import PublicProfilePanel from "../components/PublicProfilePanel";
 import XPLoginScreen from "../components/XPLoginScreen";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
@@ -54,6 +55,7 @@ export default function Home() {
   const [showThemes, setShowThemes] = useState(false);
   const [currentTheme, setCurrentTheme] = useState("bliss");
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
+  const [viewingProfileUserId, setViewingProfileUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (sessionStorage.getItem("nr-booted")) {
@@ -148,6 +150,7 @@ export default function Home() {
           category: sub.category,
           communitySubmission: true,
           submittedBy: sub.users?.display_name || sub.users?.email || undefined,
+          submitterAvatar: sub.users?.avatar_url || undefined,
           isPrivate: sub.is_public === false,
           userId: sub.user_id,
         }));
@@ -578,7 +581,7 @@ export default function Home() {
                 <div className="memory-list-info">
                   <span className="memory-list-title">{mem.title}</span>
                   {mem.communitySubmission && mem.submittedBy && (
-                    <span className="memory-list-author">by {mem.submittedBy}</span>
+                    <span className="memory-list-author">by <span className="clickable-username" onClick={(e) => { e.stopPropagation(); if (mem.userId) setViewingProfileUserId(mem.userId); }}>{mem.submittedBy}</span></span>
                   )}
                 </div>
                 {!mem.isPrivate && (
@@ -618,8 +621,11 @@ export default function Home() {
             )
           }
           onMemoryChanged={fetchApprovedSubmissions}
+          onViewProfile={setViewingProfileUserId}
         />
       )}
+
+      <PublicProfilePanel userId={viewingProfileUserId} onClose={() => setViewingProfileUserId(null)} />
 
       {/* Info Modal */}
       {infoModal && (

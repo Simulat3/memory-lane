@@ -9,6 +9,7 @@ create table public.users (
   email text,
   display_name text,
   avatar_url text default '',
+  bio text default '',
   is_admin boolean default false,
   created_at timestamptz default now()
 );

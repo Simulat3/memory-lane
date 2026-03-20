@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase/client";
-import type { Category, Submission, Notification } from "../lib/types";
+import type { Category, Submission, Notification, UserStats } from "../lib/types";
 
 const CATEGORIES: { value: Category; label: string; color: string }[] = [
   { value: "key-event", label: "Key Event", color: "#cc0000" },
@@ -24,15 +24,22 @@ interface ProfilePanelProps {
 
 export default function ProfilePanel({ open, onClose, onMemoriesChanged, notifications = [], onNotificationsRead }: ProfilePanelProps) {
   const { user, profile, updateProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"public" | "private" | "rejected" | "notifications">("public");
+  const [activeTab, setActiveTab] = useState<"memories" | "stats" | "notifications">("memories");
+  const [memoryFilter, setMemoryFilter] = useState<"public" | "private" | "rejected">("public");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState(false);
 
   // Profile editing
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState("");
   const [nameSaving, setNameSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+  const [bioValue, setBioValue] = useState("");
+  const [bioSaving, setBioSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Memory editing
@@ -68,12 +75,44 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
     }
   }, [open, user, profile?.display_name, fetchUserSubmissions]);
 
+  useEffect(() => {
+    if (activeTab === "stats" && user && !stats && !statsLoading && !statsError) {
+      (async () => {
+        setStatsLoading(true);
+        setStatsError(false);
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) { setStatsError(true); return; }
+          const res = await fetch(`/api/users/${user.id}/stats`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (res.ok) {
+            setStats(await res.json());
+          } else {
+            setStatsError(true);
+          }
+        } catch {
+          setStatsError(true);
+        } finally {
+          setStatsLoading(false);
+        }
+      })();
+    }
+  }, [activeTab, user, stats, statsLoading, statsError]);
+
   async function handleNameSave() {
     if (!nameValue.trim()) return;
     setNameSaving(true);
     await updateProfile({ display_name: nameValue.trim() });
     setNameSaving(false);
     setEditingName(false);
+  }
+
+  async function handleBioSave() {
+    setBioSaving(true);
+    await updateProfile({ bio: bioValue });
+    setBioSaving(false);
+    setEditingBio(false);
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -160,8 +199,8 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
   }
 
   const filtered = submissions.filter((s) => {
-    if (activeTab === "public") return s.is_public && s.status !== "rejected";
-    if (activeTab === "private") return !s.is_public;
+    if (memoryFilter === "public") return s.is_public && s.status !== "rejected";
+    if (memoryFilter === "private") return !s.is_public;
     return s.status === "rejected";
   });
 
@@ -273,28 +312,55 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
           </div>
         </div>
 
+        {/* Bio */}
+        <div className="profile-bio-section">
+          {editingBio ? (
+            <div className="profile-bio-edit">
+              <textarea
+                value={bioValue}
+                onChange={(e) => setBioValue(e.target.value.slice(0, 300))}
+                placeholder="Write a short bio..."
+                rows={3}
+                autoFocus
+              />
+              <div className="profile-bio-edit-footer">
+                <span className="bio-char-count">{bioValue.length}/300</span>
+                <div className="profile-bio-edit-actions">
+                  <button onClick={handleBioSave} disabled={bioSaving}>
+                    {bioSaving ? "..." : "Save"}
+                  </button>
+                  <button onClick={() => { setEditingBio(false); setBioValue(profile.bio || ""); }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="profile-bio-display">
+              <span className="profile-bio-text">
+                {profile.bio || "No bio yet."}
+              </span>
+              <button onClick={() => { setBioValue(profile.bio || ""); setEditingBio(true); }} title="Edit bio">
+                &#9998;
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Tabs */}
         <div className="profile-tabs">
           <button
-            className={`profile-tab${activeTab === "public" ? " active" : ""}`}
-            onClick={() => setActiveTab("public")}
+            className={`profile-tab${activeTab === "memories" ? " active" : ""}`}
+            onClick={() => setActiveTab("memories")}
           >
-            &#127758; Public ({submissions.filter((s) => s.is_public && s.status !== "rejected").length})
+            &#128196; Memories ({submissions.length})
           </button>
           <button
-            className={`profile-tab${activeTab === "private" ? " active" : ""}`}
-            onClick={() => setActiveTab("private")}
+            className={`profile-tab${activeTab === "stats" ? " active" : ""}`}
+            onClick={() => { setStats(null); setStatsError(false); setActiveTab("stats"); }}
           >
-            &#128274; Private ({submissions.filter((s) => !s.is_public).length})
+            &#128202; Stats
           </button>
-          {submissions.some((s) => s.status === "rejected") && (
-            <button
-              className={`profile-tab${activeTab === "rejected" ? " active" : ""}`}
-              onClick={() => setActiveTab("rejected")}
-            >
-              &#10060; Rejected ({submissions.filter((s) => s.status === "rejected").length})
-            </button>
-          )}
           <button
             className={`profile-tab${activeTab === "notifications" ? " active" : ""}`}
             onClick={() => setActiveTab("notifications")}
@@ -307,7 +373,208 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
 
         {/* Memories / Notifications list */}
         <div className="profile-memories">
-          {activeTab === "notifications" ? (
+          {activeTab === "memories" ? (
+            <>
+              <div className="memory-sub-filters">
+                <button
+                  className={`memory-sub-filter${memoryFilter === "public" ? " active" : ""}`}
+                  onClick={() => setMemoryFilter("public")}
+                >
+                  &#127758; Public ({submissions.filter((s) => s.is_public && s.status !== "rejected").length})
+                </button>
+                <button
+                  className={`memory-sub-filter${memoryFilter === "private" ? " active" : ""}`}
+                  onClick={() => setMemoryFilter("private")}
+                >
+                  &#128274; Private ({submissions.filter((s) => !s.is_public).length})
+                </button>
+                {submissions.some((s) => s.status === "rejected") && (
+                  <button
+                    className={`memory-sub-filter${memoryFilter === "rejected" ? " active" : ""}`}
+                    onClick={() => setMemoryFilter("rejected")}
+                  >
+                    &#10060; Rejected ({submissions.filter((s) => s.status === "rejected").length})
+                  </button>
+                )}
+              </div>
+              {loading ? (
+                <div className="profile-empty">Loading...</div>
+              ) : filtered.length === 0 ? (
+                <div className="profile-empty">
+                  No {memoryFilter} memories yet.
+                </div>
+              ) : (
+                filtered.map((sub) => (
+                  <div key={sub.id} className="profile-memory-item">
+                    {editingId === sub.id ? (
+                      <div className="profile-memory-edit">
+                        <div className="admin-edit-form">
+                          <label>Title</label>
+                          <input value={editFields.title} onChange={(e) => setEditFields({ ...editFields, title: e.target.value })} />
+                          <label>Description</label>
+                          <textarea value={editFields.description} onChange={(e) => setEditFields({ ...editFields, description: e.target.value })} />
+                          <label>Date</label>
+                          <input type="date" value={editFields.date} onChange={(e) => setEditFields({ ...editFields, date: e.target.value })} />
+                          <label>Category</label>
+                          <select value={editFields.category} onChange={(e) => setEditFields({ ...editFields, category: e.target.value as Category })}>
+                            {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                          </select>
+                          <div className="admin-edit-actions">
+                            <button className="admin-save-btn" onClick={() => handleEditSave(sub.id)}>Save</button>
+                            <button className="admin-cancel-btn" onClick={() => setEditingId(null)}>Cancel</button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="profile-memory-header">
+                          <span
+                            className="category-badge"
+                            style={{ backgroundColor: CATEGORIES.find((c) => c.value === sub.category)?.color || "#0054e3" }}
+                          >
+                            {CATEGORIES.find((c) => c.value === sub.category)?.label || "Memory"}
+                          </span>
+                          {sub.is_public && (
+                            <span className={`status-badge status-${sub.status}`}>
+                              {sub.status}
+                            </span>
+                          )}
+                          {sub.pending_edit && (
+                            <span className="status-badge" style={{ background: "#e6a800", color: "#fff" }}>
+                              edit pending
+                            </span>
+                          )}
+                        </div>
+                        <div className="profile-memory-title">{sub.title}</div>
+                        {sub.description && (
+                          <div className="profile-memory-desc">{sub.description}</div>
+                        )}
+                        <div className="profile-memory-footer">
+                          <span className="profile-memory-date">{sub.date}</span>
+                          <div className="profile-memory-actions">
+                            {(!sub.is_public || sub.status === "pending" || sub.status === "approved") && (
+                              <button onClick={() => {
+                                setEditingId(sub.id);
+                                setEditFields({
+                                  title: sub.title,
+                                  description: sub.description || "",
+                                  date: sub.date,
+                                  category: sub.category,
+                                  url: sub.url || "",
+                                  image_url: sub.image_url || "",
+                                });
+                              }}>Edit</button>
+                            )}
+                            {!sub.is_public && (
+                              <button className="profile-delete-btn" onClick={() => handleDelete(sub.id)}>Delete</button>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
+            </>
+          ) : activeTab === "stats" ? (
+              statsLoading ? (
+                <div className="profile-empty">Loading stats...</div>
+              ) : !stats ? (
+                <div className="profile-empty">Could not load stats.</div>
+              ) : (
+                <div className="stats-container">
+                  <div className="stats-cards">
+                    <div className="stats-card">
+                      <div className="stats-card-value">{stats.totalSubmissions}</div>
+                      <div className="stats-card-label">Memories</div>
+                    </div>
+                    <div className="stats-card">
+                      <div className="stats-card-value">{stats.totalUpvotesReceived}</div>
+                      <div className="stats-card-label">Upvotes Received</div>
+                    </div>
+                    <div className="stats-card">
+                      <div className="stats-card-value">{stats.totalUpvotesGiven}</div>
+                      <div className="stats-card-label">Upvotes Given</div>
+                    </div>
+                    <div className="stats-card">
+                      <div className="stats-card-value">{stats.totalCommentsMade}</div>
+                      <div className="stats-card-label">Comments</div>
+                    </div>
+                  </div>
+
+                  {stats.categoryBreakdown.length > 0 && (
+                    <div className="stats-section">
+                      <div className="stats-section-title">Category Breakdown</div>
+                      {stats.categoryBreakdown.map((item) => {
+                        const catInfo = CATEGORIES.find((c) => c.value === item.category);
+                        const percent = stats.totalSubmissions > 0
+                          ? Math.round((item.count / stats.totalSubmissions) * 100) : 0;
+                        return (
+                          <div key={item.category} className="stats-bar-row">
+                            <span className="stats-bar-label">{catInfo?.label || item.category}</span>
+                            <div className="stats-bar-track">
+                              <div
+                                className="stats-bar-fill"
+                                style={{ width: `${percent}%`, backgroundColor: catInfo?.color || "#0054e3" }}
+                              />
+                            </div>
+                            <span className="stats-bar-count">{item.count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {stats.topMemory && (
+                    <div className="stats-section">
+                      <div className="stats-section-title">Top Memory</div>
+                      <div className="stats-top-memory">
+                        <span
+                          className="category-badge"
+                          style={{ backgroundColor: CATEGORIES.find((c) => c.value === stats.topMemory!.category)?.color }}
+                        >
+                          {CATEGORIES.find((c) => c.value === stats.topMemory!.category)?.label}
+                        </span>
+                        <div className="stats-top-memory-title">{stats.topMemory.title}</div>
+                        <div className="stats-top-memory-meta">
+                          {stats.topMemory.date} &middot; {stats.topMemory.upvoteCount} upvote{stats.topMemory.upvoteCount !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="stats-section">
+                    <div className="stats-section-title">Approval Rate</div>
+                    <div className="stats-bar-track stats-bar-large">
+                      <div
+                        className="stats-bar-fill"
+                        style={{
+                          width: `${stats.approvalRate.total > 0
+                            ? Math.round((stats.approvalRate.approved / stats.approvalRate.total) * 100) : 0}%`,
+                          backgroundColor: "#00994d",
+                        }}
+                      />
+                    </div>
+                    <div className="stats-ratio-label">
+                      {stats.approvalRate.approved} approved / {stats.approvalRate.total} public submission{stats.approvalRate.total !== 1 ? "s" : ""}
+                      {stats.approvalRate.pending > 0 && ` (${stats.approvalRate.pending} pending)`}
+                    </div>
+                  </div>
+
+                  <div className="stats-section">
+                    <div className="stats-section-title">Public vs Private</div>
+                    <div className="stats-ratio-badges">
+                      <span className="stats-badge stats-badge-public">
+                        &#127758; {stats.publicPrivateRatio.publicCount} Public
+                      </span>
+                      <span className="stats-badge stats-badge-private">
+                        &#128274; {stats.publicPrivateRatio.privateCount} Private
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+          ) : activeTab === "notifications" ? (
             notifications.length === 0 ? (
               <div className="profile-empty">No notifications yet.</div>
             ) : (
@@ -328,84 +595,7 @@ export default function ProfilePanel({ open, onClose, onMemoriesChanged, notific
                 ))}
               </>
             )
-          ) : loading ? (
-            <div className="profile-empty">Loading...</div>
-          ) : filtered.length === 0 ? (
-            <div className="profile-empty">
-              No {activeTab} memories yet.
-            </div>
-          ) : (
-            filtered.map((sub) => (
-              <div key={sub.id} className="profile-memory-item">
-                {editingId === sub.id ? (
-                  <div className="profile-memory-edit">
-                    <div className="admin-edit-form">
-                      <label>Title</label>
-                      <input value={editFields.title} onChange={(e) => setEditFields({ ...editFields, title: e.target.value })} />
-                      <label>Description</label>
-                      <textarea value={editFields.description} onChange={(e) => setEditFields({ ...editFields, description: e.target.value })} />
-                      <label>Date</label>
-                      <input type="date" value={editFields.date} onChange={(e) => setEditFields({ ...editFields, date: e.target.value })} />
-                      <label>Category</label>
-                      <select value={editFields.category} onChange={(e) => setEditFields({ ...editFields, category: e.target.value as Category })}>
-                        {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                      </select>
-                      <div className="admin-edit-actions">
-                        <button className="admin-save-btn" onClick={() => handleEditSave(sub.id)}>Save</button>
-                        <button className="admin-cancel-btn" onClick={() => setEditingId(null)}>Cancel</button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="profile-memory-header">
-                      <span
-                        className="category-badge"
-                        style={{ backgroundColor: CATEGORIES.find((c) => c.value === sub.category)?.color || "#0054e3" }}
-                      >
-                        {CATEGORIES.find((c) => c.value === sub.category)?.label || "Memory"}
-                      </span>
-                      {sub.is_public && (
-                        <span className={`status-badge status-${sub.status}`}>
-                          {sub.status}
-                        </span>
-                      )}
-                      {sub.pending_edit && (
-                        <span className="status-badge" style={{ background: "#e6a800", color: "#fff" }}>
-                          edit pending
-                        </span>
-                      )}
-                    </div>
-                    <div className="profile-memory-title">{sub.title}</div>
-                    {sub.description && (
-                      <div className="profile-memory-desc">{sub.description}</div>
-                    )}
-                    <div className="profile-memory-footer">
-                      <span className="profile-memory-date">{sub.date}</span>
-                      <div className="profile-memory-actions">
-                        {(!sub.is_public || sub.status === "pending" || sub.status === "approved") && (
-                          <button onClick={() => {
-                            setEditingId(sub.id);
-                            setEditFields({
-                              title: sub.title,
-                              description: sub.description || "",
-                              date: sub.date,
-                              category: sub.category,
-                              url: sub.url || "",
-                              image_url: sub.image_url || "",
-                            });
-                          }}>Edit</button>
-                        )}
-                        {!sub.is_public && (
-                          <button className="profile-delete-btn" onClick={() => handleDelete(sub.id)}>Delete</button>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))
-          )}
+          ) : null}
         </div>
       </div>
     </div>

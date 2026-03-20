@@ -11,6 +11,7 @@ export interface Memory {
   preset?: boolean;
   communitySubmission?: boolean;
   submittedBy?: string;
+  submitterAvatar?: string;
   isPrivate?: boolean;
   userId?: string;
 }
@@ -33,6 +34,7 @@ export interface Submission {
   users?: {
     display_name: string;
     email: string;
+    avatar_url?: string;
   };
 }
 
@@ -41,8 +43,21 @@ export interface UserProfile {
   email: string;
   display_name: string;
   avatar_url: string;
+  bio: string;
   is_admin: boolean;
   created_at: string;
+}
+
+export interface PublicProfile {
+  id: string;
+  display_name: string;
+  avatar_url: string;
+  bio: string;
+  created_at: string;
+  publicStats: {
+    totalApprovedSubmissions: number;
+    totalUpvotesReceived: number;
+  };
 }
 
 export interface Comment {
@@ -85,6 +100,23 @@ export interface Notification {
   message: string;
   read: boolean;
   created_at: string;
+}
+
+export interface UserStats {
+  totalSubmissions: number;
+  totalUpvotesReceived: number;
+  totalUpvotesGiven: number;
+  totalCommentsMade: number;
+  categoryBreakdown: { category: Category; count: number }[];
+  topMemory: {
+    id: string;
+    title: string;
+    date: string;
+    category: Category;
+    upvoteCount: number;
+  } | null;
+  approvalRate: { approved: number; rejected: number; pending: number; total: number };
+  publicPrivateRatio: { publicCount: number; privateCount: number };
 }
 
 export interface FlaggedComment extends Comment {

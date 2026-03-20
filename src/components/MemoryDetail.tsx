@@ -23,9 +23,10 @@ interface MemoryDetailProps {
   onDelete: (mem: Memory) => void;
   canEdit: boolean;
   onMemoryChanged: () => void;
+  onViewProfile?: (userId: string) => void;
 }
 
-export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete, canEdit, onMemoryChanged }: MemoryDetailProps) {
+export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete, canEdit, onMemoryChanged, onViewProfile }: MemoryDetailProps) {
   const { user } = useAuth();
   const [reactionCount, setReactionCount] = useState(0);
   const [userReacted, setUserReacted] = useState(false);
@@ -171,7 +172,16 @@ export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete
                   <span className="private-badge">&#128274; Private</span>
                 )}
                 {memory.communitySubmission && memory.submittedBy && (
-                  <span className="submitted-by">Submitted by {memory.submittedBy}</span>
+                  <span className="submitted-by submitted-by-clickable" onClick={() => { if (memory.userId && onViewProfile) onViewProfile(memory.userId); }}>
+                    {memory.submitterAvatar ? (
+                      <img className="submitter-avatar" src={memory.submitterAvatar} alt="" />
+                    ) : (
+                      <span className="submitter-avatar submitter-avatar-placeholder">
+                        {memory.submittedBy.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    {memory.submittedBy}
+                  </span>
                 )}
               </div>
 
@@ -225,6 +235,7 @@ export default function MemoryDetail({ memory, onBack, onClose, onSave, onDelete
                 <CommentsSection
                   memoryId={memoryId}
                   memoryType={memoryType}
+                  onViewProfile={onViewProfile}
                 />
               )}
             </>
