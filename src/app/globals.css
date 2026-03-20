@@ -538,12 +538,13 @@ header p {
 .days { display: grid; grid-template-columns: repeat(7, 1fr); }
 
 .day {
-    min-height: 75px;
+    height: 75px;
     padding: 4px 6px;
     border: 1px solid #ddd;
     cursor: pointer;
     transition: background 0.1s;
     background: #fff;
+    overflow: hidden;
 }
 
 .day:hover { background: #e8f0fe; }
@@ -2977,7 +2978,7 @@ header p {
 
 @media (max-width: 600px) {
     header h1 { font-size: 0.9rem; }
-    .day { min-height: 50px; padding: 3px; }
+    .day { height: 50px; padding: 3px; }
     .memory-preview { display: none; }
     .calendar-nav h2 { font-size: 0.85rem; }
     .auth-username { display: none; }
