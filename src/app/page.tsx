@@ -56,6 +56,12 @@ export default function Home() {
   const [currentTheme, setCurrentTheme] = useState("bliss");
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(false);
   const [viewingProfileUserId, setViewingProfileUserId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [categoryBrowse, setCategoryBrowse] = useState<Category | null>(null);
+  const [timelineLayout, setTimelineLayout] = useState<"horizontal" | "vertical">("horizontal");
+  const [timelineFullscreen, setTimelineFullscreen] = useState(false);
+  const [timelineZoom, setTimelineZoom] = useState(100);
 
   useEffect(() => {
     if (sessionStorage.getItem("nr-booted")) {
@@ -235,6 +241,22 @@ export default function Home() {
 
   const allMemories: Memory[] = [...CULTURAL_MOMENTS, ...BONUS_MEMORIES, ...communityMemories];
 
+  const searchResults = searchQuery.trim().length >= 2
+    ? allMemories.filter((mem) => {
+        const q = searchQuery.toLowerCase();
+        return mem.title.toLowerCase().includes(q) || mem.description.toLowerCase().includes(q);
+      }).slice(0, 20)
+    : [];
+
+  function handleSearchSelect(mem: Memory) {
+    const [y, m] = mem.date.split("-");
+    setCurrentYear(Number(y));
+    setCurrentMonth(Number(m) - 1);
+    setSelectedMemory(mem);
+    setSearchQuery("");
+    setSearchOpen(false);
+  }
+
   function getMemoriesForDate(year: number, month: number, day: number): Memory[] {
     const y = String(year);
     const m = String(month + 1).padStart(2, "0");
@@ -353,7 +375,7 @@ export default function Home() {
   }
 
   return (
-    <div className="xp-desktop" style={{ backgroundImage: `url('${THEMES.find(t => t.id === currentTheme)?.image || "/themes/bliss.webp"}')` }}>
+    <div className="xp-desktop" style={{ backgroundImage: `url('${THEMES.find(t => t.id === currentTheme)?.image || "/themes/bliss.webp"}')` }} onClick={() => { if (searchOpen) setSearchOpen(false); }}>
       {showVerifiedBanner && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setShowVerifiedBanner(false); }}>
           <div className="xp-error-dialog">
@@ -428,6 +450,55 @@ export default function Home() {
               )}
             </div>
             <button onClick={() => { playClickSound(); changeMonth(1); }}>Next &#8594;</button>
+          </div>
+
+          <div className="search-bar-wrapper">
+            <div className="search-bar">
+              <span className="search-icon">&#128269;</span>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search memories..."
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                onFocus={() => setSearchOpen(true)}
+              />
+              {searchQuery && (
+                <button className="search-clear" onClick={() => { setSearchQuery(""); setSearchOpen(false); }}>&#10005;</button>
+              )}
+            </div>
+            {searchOpen && searchQuery.trim().length >= 2 && (
+              <div className="search-results">
+                {searchResults.length === 0 ? (
+                  <div className="search-empty">No memories found.</div>
+                ) : (
+                  searchResults.map((mem) => (
+                    <div key={`${mem.id}-${mem.date}`} className="search-result-item" onClick={() => handleSearchSelect(mem)}>
+                      <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === mem.category)?.color || "#0054e3", fontSize: "0.55rem", padding: "1px 5px" }}>
+                        {CATEGORIES.find(c => c.value === mem.category)?.label || "Memory"}
+                      </span>
+                      <div className="search-result-info">
+                        <span className="search-result-title">{mem.title}</span>
+                        <span className="search-result-date">{mem.date}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="category-filters">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.value}
+                className="category-filter-btn"
+                style={{ borderColor: cat.color, color: cat.color }}
+                onClick={() => setCategoryBrowse(cat.value)}
+              >
+                {cat.label}
+              </button>
+            ))}
           </div>
 
           <div className="calendar-grid">
@@ -563,6 +634,79 @@ export default function Home() {
             </div>
             <div className="xp-error-actions">
               <button className="xp-error-btn" onClick={() => setShowFutureError(false)}>OK</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Browse Modal */}
+      {categoryBrowse && (
+        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) { setCategoryBrowse(null); setTimelineFullscreen(false); } }}>
+          <div className={`modal category-browse-modal${timelineFullscreen ? " category-browse-fullscreen" : ""}`}>
+            <h3>
+              <span className="category-badge" style={{ backgroundColor: CATEGORIES.find(c => c.value === categoryBrowse)?.color }}>
+                {CATEGORIES.find(c => c.value === categoryBrowse)?.label}
+              </span>
+              {" "}Timeline
+              <div className="timeline-controls">
+                <button
+                  className={`timeline-toggle-btn${timelineLayout === "horizontal" ? " active" : ""}`}
+                  onClick={() => setTimelineLayout("horizontal")}
+                  title="Horizontal"
+                >&#8596;</button>
+                <button
+                  className={`timeline-toggle-btn${timelineLayout === "vertical" ? " active" : ""}`}
+                  onClick={() => setTimelineLayout("vertical")}
+                  title="Vertical"
+                >&#8597;</button>
+                <button
+                  className="timeline-toggle-btn"
+                  onClick={() => setTimelineFullscreen(!timelineFullscreen)}
+                  title={timelineFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                >{timelineFullscreen ? "\u2716" : "\u26F6"}</button>
+              </div>
+              <button className="modal-close-x" onClick={() => { setCategoryBrowse(null); setTimelineFullscreen(false); }}>&#10005;</button>
+            </h3>
+            <div className="category-browse-scroll">
+              <div className={`category-browse-list${timelineLayout === "vertical" ? " category-browse-vertical" : ""}`} style={{ transform: `scale(${timelineZoom / 100})`, transformOrigin: timelineLayout === "horizontal" ? "left top" : "top left" }}>
+                {allMemories
+                  .filter((mem) => mem.category === categoryBrowse && !mem.isPrivate)
+                  .sort((a, b) => a.date.localeCompare(b.date))
+                  .map((mem) => (
+                    <div
+                      key={`${mem.id}-${mem.date}`}
+                      className="category-browse-item"
+                      onClick={() => { setCategoryBrowse(null); setTimelineFullscreen(false); setSelectedMemory(mem); const [y, m] = mem.date.split("-"); setCurrentYear(Number(y)); setCurrentMonth(Number(m) - 1); }}
+                    >
+                      <div className="category-browse-date">{mem.date}</div>
+                      <div className="category-browse-connector" />
+                      <div className="category-browse-content">
+                        <div className="category-browse-title">{mem.title}</div>
+                        {mem.description && <div className="category-browse-desc">{mem.description}</div>}
+                        {mem.communitySubmission && mem.submittedBy && (
+                          <div className="category-browse-author">by {mem.submittedBy}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                {allMemories.filter((mem) => mem.category === categoryBrowse && !mem.isPrivate).length === 0 && (
+                  <div className="profile-empty">No memories in this category yet.</div>
+                )}
+              </div>
+            </div>
+            <div className="timeline-zoom-bar">
+              <span className="timeline-zoom-label">&#128269;</span>
+              <button className="timeline-zoom-btn" onClick={() => setTimelineZoom(Math.max(30, timelineZoom - 10))}>-</button>
+              <input
+                type="range"
+                className="timeline-zoom-slider"
+                min={30}
+                max={200}
+                value={timelineZoom}
+                onChange={(e) => setTimelineZoom(Number(e.target.value))}
+              />
+              <button className="timeline-zoom-btn" onClick={() => setTimelineZoom(Math.min(200, timelineZoom + 10))}>+</button>
+              <span className="timeline-zoom-value">{timelineZoom}%</span>
             </div>
           </div>
         </div>
